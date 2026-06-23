@@ -218,7 +218,7 @@ class BulkExportController extends \VuFind\Controller\AbstractBase
 		$this->injectResponseWriter($params);
 		$this->injectSpellingParams($params);
 		$this->injectConditionalFilter($params);
-		// $this->injectUserCustomParams($params);
+		$this->injectUserCustomParams($params);
 
 		//Build query params string
 		$builder = $this->getQueryBuilder();
