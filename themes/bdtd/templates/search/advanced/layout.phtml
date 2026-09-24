@@ -100,7 +100,8 @@
         <input type="hidden" name="hiddenFilters[]" value="<?=$this->escapeHtmlAttr($key) . ':' . $this->escapeHtmlAttr($value)?>">
       <?php endforeach; ?>
     <?php endforeach; ?>
-    <div class="<?=$this->layoutClass('mainbody')?>">
+    <?php $bdtdHasSidebar = $hasDefaultsApplied || $checkboxFilters || $searchFilters; ?>
+    <div class="<?=$this->layoutClass('mainbody', (bool)$bdtdHasSidebar)?>">
       <?php $lastSort = $this->searchMemory()->getLastSort($this->searchClassId); ?>
       <?php if (!empty($lastSort)): ?>
         <input type="hidden" name="sort" value="<?=$this->escapeHtmlAttr($lastSort)?>">
@@ -194,6 +195,7 @@
       <?php endif; ?>
     </div>
 
+    <?php if ($bdtdHasSidebar): ?>
     <div class="<?=$this->layoutClass('sidebar')?>">
       <?php if ($hasDefaultsApplied): ?>
         <input type="hidden" name="dfApplied" value="1">
@@ -247,6 +249,7 @@
         </ul>
       <?php endif; ?>
     </div>
+    <?php endif; ?>
   </form>
 </div>
 <?php /* BDTD: atalhos e bloco institucional, como na home */ ?>
