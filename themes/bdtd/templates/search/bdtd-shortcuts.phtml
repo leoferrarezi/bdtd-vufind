@@ -1,12 +1,15 @@
 <?php
   // BDTD: atalhos Participe / Tecnologia / Indicadores (home e busca avançada).
+  // pullUp (padrão true): classe bottom-search-form, que sobe o bloco sobre a faixa verde
+  // (usado logo abaixo da faixa, na home). Na busca avançada o bloco vem depois do formulário.
+  $pullUp = $this->pullUp ?? true;
   $shortcuts = [
     ['participate-home', 'Participe', 'bdtd-participate', 'Faça parte da BDTD e contribua com a disseminação das teses e dissertações produzidas por pesquisadores brasileiros.'],
     ['technology-home', 'Tecnologia', 'bdtd-technology', 'Em concordância com os preceitos da Ciência Aberta, toda a tecnologia utilizada para o funcionamento da BDTD são de código livre.'],
     ['indicators-home', 'Indicadores', 'bdtd-indicators', 'Acesse alguns indicadores quantitativos relativos às teses e dissertações no Brasil.'],
   ];
 ?>
-<div class="search-info bottom-search-form">
+<div class="search-info<?=$pullUp ? ' bottom-search-form' : ''?>">
   <?php foreach ($shortcuts as [$route, $title, $icon, $text]): ?>
     <a class="item" href="<?=$this->url($route)?>">
       <div class="text-primary flex-row-spaced-between">

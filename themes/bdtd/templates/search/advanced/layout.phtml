@@ -86,6 +86,7 @@
 </div>
 <div class="container">
 <?=$this->flashmessages()?>
+<div role="search" class="bottom-search-form adv-search-form">
 <div class="adv-help">
   <a href="<?=$this->url('search-home')?>" class="btn outlined-primary" rel="nofollow"><?=$this->icon('ui-close')?> <?=$this->transEsc('Close advanced search')?></a>
   <span class="adv-help-label"><?=$this->transEsc('Search Tips')?>:</span>
@@ -93,7 +94,6 @@
     <a class="help-link" data-lightbox href="<?=$this->url('help', ['topic' => $topic])?>"><?=$this->transEsc($title)?></a>
   <?php endforeach; ?>
 </div>
-<div role="search" class="bottom-search-form adv-search-form">
   <form name="searchForm" id="advSearchForm" method="get" action="<?=$this->url($this->options->getSearchAction())?>">
     <?php foreach ($hiddenFilters as $key => $filter): ?>
       <?php foreach ($filter as $value): ?>
@@ -250,7 +250,7 @@
   </form>
 </div>
 <?php /* BDTD: atalhos e bloco institucional, como na home */ ?>
-<?=$this->render('search/bdtd-shortcuts.phtml')?>
+<?=$this->render('search/bdtd-shortcuts.phtml', ['pullUp' => false])?>
 </div>
 <div class="container">
   <?=$this->render('content-home.phtml')?>
