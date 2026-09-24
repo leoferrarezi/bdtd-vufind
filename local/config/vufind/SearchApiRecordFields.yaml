@@ -1,0 +1,5 @@
+# BDTD — campos extras expostos pela API de busca (mesclado com o padrão).
+dc.identifier.dark.fl_str_mv:
+  vufind.method: getDarkID
+  description: Identificador persistente dARK
+  type: string

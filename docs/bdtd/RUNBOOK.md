@@ -37,6 +37,40 @@ _A preencher._
 ## 3. VPS (Ubuntu 24.04)
 
 Acesso: `ssh -i ~/.ssh/id_ed25519_bdtd_vps -p 10020 leoferrarezi@103.14.27.53`
-(NAT: 10020 → 22, 10080 → 80). O usuário precisa de sudo sem senha durante o provisionamento.
+(NAT: 10020 → 22, 10080 → 80). IP interno da VPS: 10.10.10.7. Hostname `bdtd`.
+Recursos: 4 vCPU, 15 GB RAM, disco 80 GB.
 
-_A preencher._
+### 3.1 Acesso (feito em 2026-09-24)
+
+Na máquina local (Windows/Git Bash), chave dedicada ao projeto:
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_bdtd_vps -N "" -C "claude-bdtd-vps (leoferrarezi@gmail.com)"
+```
+Na VPS, como `leoferrarezi` (feito pelo responsável):
+```bash
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+echo '<conteúdo de id_ed25519_bdtd_vps.pub>' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
+echo 'leoferrarezi ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/90-leoferrarezi && sudo chmod 440 /etc/sudoers.d/90-leoferrarezi
+```
+
+### 3.2 Expandir o disco (feito em 2026-09-24)
+
+O instalador do Ubuntu deixou a raiz com 24 GB num disco de 80 GB (metade do PV livre no LVM e ~30 GB
+sem partição). Expansão online, sem perda de dados:
+```bash
+sudo apt-get install -y cloud-guest-utils
+sudo growpart /dev/sda 3
+sudo pvresize /dev/sda3
+sudo lvextend -r -l +100%FREE /dev/ubuntu-vg/ubuntu-lv   # -r já faz o resize2fs
+df -h /    # → 77G
+```
+
+### 3.3 Provisionamento
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/leoferrarezi/bdtd-vufind/vufind11/deploy/provision.sh -o /tmp/provision.sh
+sudo env LOCAL_MODULES=Bdtd bash /tmp/provision.sh > /tmp/provision.log 2>&1
+```
+O script é idempotente: para aplicar mudanças de `deploy/` depois, basta rodá-lo de novo.
+
+_Resultado e ajustes: a preencher._

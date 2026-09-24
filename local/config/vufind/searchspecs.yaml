@@ -1,0 +1,24 @@
+# BDTD — especificações de busca adicionais (o VuFind 11 mescla este arquivo com o searchspecs.yaml padrão).
+#
+# "Abstract" aparece nos menus de busca desde o legado, mas o legado não tinha
+# especificação para ele. Busca nos resumos por idioma e na descrição geral.
+Abstract:
+  DismaxFields:
+    - dc.description.resumo.por.fl_txt_mv^100
+    - dc.description.abstract.eng.fl_txt_mv^80
+    - dc.description.abstract.spa.fl_txt_mv^80
+    - description^50
+  DismaxHandler: edismax
+  QueryFields:
+    dc.description.resumo.por.fl_txt_mv:
+      - [onephrase, 500]
+      - [and, 100]
+    dc.description.abstract.eng.fl_txt_mv:
+      - [onephrase, 400]
+      - [and, 80]
+    dc.description.abstract.spa.fl_txt_mv:
+      - [onephrase, 400]
+      - [and, 80]
+    description:
+      - [onephrase, 200]
+      - [and, 50]

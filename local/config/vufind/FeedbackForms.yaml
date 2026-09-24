@@ -1,0 +1,28 @@
+# BDTD — formulários adicionais (o VuFind 11 mescla com o FeedbackForms.yaml padrão).
+#
+# Formulário de contato da BDTD. No legado era o FeedbackSite editado, e o assunto
+# do e-mail vinha de uma alteração no core (Form.php). Aqui é só configuração:
+# emailSubject usa o placeholder do campo "subject". O tema aponta os links de
+# contato para /Feedback/Form/FeedbackBdtd.
+forms:
+  FeedbackBdtd:
+    title: feedback_title
+    enabled: true
+    useCaptcha: true
+    reportReferrer: false
+    reportUserAgent: true
+    primaryHandler: email
+    onlyForLoggedUsers: false
+    response: feedback_response
+    senderEmailRequired: true
+    senderNameRequired: true
+    emailSubject: "BDTD Contato: %%value:subject%%"
+    fields:
+      - name: subject
+        type: text
+        label: Subject
+        required: true
+      - name: message
+        type: textarea
+        label: Message
+        required: true
