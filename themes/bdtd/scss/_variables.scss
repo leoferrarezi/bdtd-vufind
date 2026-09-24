@@ -1,0 +1,81 @@
+//font-family
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto&display=swap');
+
+//root variables
+:root {
+    //basic configuration
+    --size-base:4px;
+    --font-family-highlight:'Roboto', sans-serif;
+    --font-family-base: 'Open Sans', sans-serif;
+   
+    //border
+    --border-width-none:0;                              //0
+    --border-width-small:calc(var(--size-base)/2);     //1
+    --border-width-normal:var(--size-small);           //2
+    --border-width-medium:var(--size-tiny-1x);          //4
+    --border-width-normal:var(--size-tiny-2x);          //8
+
+    
+    //opacity
+    --none:0;      
+    --semi:0.2;    
+    --normal:0.4;
+    --medium:0.8;   
+    --total:1;  
+
+    --primary-color:28;
+    --secondary-color:147;
+
+    /*
+    -- color --
+    RBG need to insert value alpha color
+    */
+    --color-hex-primary-light:rgb(var(--primary-color), 249, 242);
+    --color-hex-primary-base:rgb(var(--primary-color), 133, 103);
+    --color-hex-primary-dark:rgb(var(--primary-color), 80, 62);
+
+    --color-rgb-primary-light:var(--primary-color), 249, 242;
+    --color-rgb-primary-base:var(--primary-color), 133, 103;
+    --color-rgb-primary-dark:var(--primary-color), 80, 62;
+
+    --color-hex-secondary-light:rgb(var(--secondary-color), 147, 0);
+    --color-hex-secondary-base:rgb(var(--secondary-color), 105, 43);
+    --color-hex-secondary-dark:rgb(var(--secondary-color), 62, 25);
+
+    --color-rgb-secondary-light:var(--secondary-color), 147, 0;
+    --color-rgb-secondary-base:var(--secondary-color), 105, 43;
+    --color-rgb-secondary-dark:var(--secondary-color), 62, 25;
+    //--color-brand-tertiary:50, 50, 50;
+    //--color-brand-quaternary:244,244,244;
+
+    --color-neutral-50:#FCFCFC;
+    --color-neutral-100:#FCFCFC;
+    --color-neutral-200:#FAFAFA;
+    --color-neutral-300:#F7F7F7;
+    --color-neutral-400:#F5F5F5;
+    --color-neutral-500:#F2F2F2;
+    --color-neutral-600:#C2C2C2;
+    --color-neutral-700:#919191;
+    --color-neutral-800:#616161;
+    --color-neutral-900:#303030;
+
+    --color-feedback-info:#41bef4;
+    --color-feedback-pending:#b57cfa;
+    --color-feedback-success:#41c049;
+    --color-feedback-warning:#fd8f45;
+    --color-feedback-danger:#f03a3d;
+    
+    --color-hiperlink-default:#2196f3;
+    --color-hiperlink-hover:#1566a8;
+
+    --color-disabled-text:178,178,178;
+    --color-disabled-border:244,244,244;
+    --color-disabled-background:248,248,248;
+}
+
+.dark-mode:root {
+    --color-basic-background:purple;   
+    .value-css {
+        font-size:var(--size-medium-1x);
+    }     
+}

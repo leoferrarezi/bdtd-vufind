@@ -1,0 +1,116 @@
+// @import "variables";
+// @import "mixins";
+// @import "reset";
+// @import "component";
+
+@use 'variables';
+@use 'mixins';
+@use 'reset';
+@use 'component';
+
+
+.info-usuarios,
+.info-gestores {
+    padding: 20px 0px 20px 0px;
+    color: var(--color-hex-primary-base);
+}
+
+.accessibility-menu {
+    position: fixed;
+    top: 8%;
+    right: 1px;
+    font-family: Arial, sans-serif;
+    display: flex;
+}
+
+.accessibility-btn {
+    width: 60px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.accessibility-options {
+    display: none;
+    padding: 10px 20px 20px 20px;
+    gap: 5px;
+    flex-direction: column;
+    background-color: #F9EEEE;
+    border: 1px solid #007bff;
+}
+
+.acessibility-icon {
+    display: flex;
+}
+
+.icon-acessible {
+    width: 15px;
+}
+
+.accessibility-menu:hover .accessibility-options {
+    display: flex;
+}
+
+.accessibility-options button {
+    background: none;
+    border: none;
+    // color: #333;
+    cursor: pointer;
+    margin: 5px 0;
+    font-size: 14px;
+    text-align: left;
+}
+
+.accessibility-options button:hover {
+    color: #007bff;
+}
+
+
+body.grayscale, .dropdown-toggle,
+body.grayscale, .dropdown-toggle * {
+    filter: grayscale(100%) !important;
+}
+
+// css para ativar escala de cinza, alto contraste e contraste negativo 
+
+body.high-contrast,
+body.high-contrast * {
+    background-color: black !important;
+    color: white !important;
+}
+
+// body.negative-contrast,
+// body.negative-contrast * {
+//     filter: invert(100%) !important;
+// }
+
+body.negative-contrast {
+    background-color: #fff !important; 
+    color: #000 !important; 
+}
+
+
+body.negative-contrast * {
+    background-color: #fff !important; 
+    color: #000 !important; 
+}
+
+body.negative-contrast img {
+    filter: none !important;
+}
+
+body.negative-contrast .dropdown-toggle,
+body.negative-contrast button {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
+body.negative-contrast a {
+    color: #0000EE !important;
+    text-decoration: underline !important;
+}
+
+

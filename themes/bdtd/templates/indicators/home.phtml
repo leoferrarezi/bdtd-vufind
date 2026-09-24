@@ -1,0 +1,284 @@
+<?php $this->headTitle($this->translate('Indicators')); ?>
+<?php $this->headLink()->appendStylesheet('loader.css'); ?>
+<?php $this->layout()->searchbox = false; ?>
+<?php $this->layout()->nocontainerclass = true; ?>
+<?php $this->headScript()->appendFile("https://cdn.jsdelivr.net/npm/vega@5.20.2"); ?>
+<?php $this->headScript()->appendFile("https://cdn.jsdelivr.net/npm/vega-lite@5.1.0"); ?>
+<?php $this->headScript()->appendFile("https://cdn.jsdelivr.net/npm/vega-embed@6.17.0"); ?>
+<?php $this->headScript()->appendFile("lib/vega-options.js"); ?>
+<?php $this->headScript()->appendFile("lib/wordcloud2.js"); ?>
+<?php $this->headScript()->appendFile("indicators-chart.js"); ?>
+<?php $this->headScript()->appendFile("evolution-indicators.js"); ?>
+<?php $this->layout()->breadcrumbs .= '<li class="active">' . '' . '</li>'; ?>
+
+<h2 class="text-primary">Indicadores</h2>
+<br />
+<h3 class="text-secondary">
+  Conheça alguns indicadores da BDTD
+</h3>
+<br />
+
+<div class="container indicators">
+  <div>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#dashboard" aria-controls="dashboard" role="tab" data-toggle="tab"><?= $this->transEsc("General indicators") ?></a></li>
+      <!-- <li role="presentation"><a href="#temporal-dashboard" aria-controls="temporal-dashboard" role="tab" data-toggle="tab"><?= $this->transEsc("Evolution indicators") ?></a></li> -->
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="dashboard">
+        <div class="loader"></div>
+        <div class="row">
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-body flex-col-center flex flex-space-between">
+                <div>
+                  <h2><?= $this->transEsc("Total Documents") ?></h2>
+                  <span id="total-docs"></span>
+                </div>
+                <i class="fa fa-database flex icon-total-indicators"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <form data-form-filter class="flex flex-space-between">
+              <input name="filter" class="search form-control" placeholder="<?= $this->transEsc("Filter the indicators") ?>">
+              <select style="width: auto;" class="searchForm_type form-control" name="type" data-native-menu="false" aria-label="<?= $this->transEsc("Search type") ?>">
+                <option value="" selected="selected"><?= $this->transEsc("All Fields") ?></option>
+                <option value="Title"><?= $this->transEsc("Title") ?></option>
+                <option value="Author"><?= $this->transEsc("Author") ?></option>
+                <option value="Subject"><?= $this->transEsc("Subject") ?></option>
+              </select>
+              <button data-filter-button type="submit" class="btn contained-primary fit-content"><?= $this->transEsc("Search button") ?></button>
+            </form>
+            <div style="display: none;" id="results">
+              <br>
+              <p>Mostrando os resultados de <span id="total-docs-results"></span>
+                para a busca <span id="filters-search"></span>, tempo de busca:
+                <span id="time-search">0.0s</span>
+              </p>
+            </div>
+            <br>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Documents by CNPq") ?></div>
+              <div class="panel-body flex-col-center">
+                <div id="visCnpq" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Documents by keyword") ?></div>
+              <div class="panel-body flex-col-center">
+                <canvas id="cloudTopic" width="500" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Documents per year") ?></div>
+              <div class="panel-body flex-col-center">
+                <div id="visYear" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Documents by PPG") ?></div>
+              <div class="panel-body flex-col-center">
+                <div id="visPpg" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"> <?= $this->transEsc("Authors top 10") ?></div>
+              <div class="panel-body flex-col-center">
+                <div id="visAuthor" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Advisors") ?> (Top 10)</div>
+              <div class="panel-body flex-col-center">
+                <div id="visAdv" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Institutions top 10") ?> </div>
+              <div class="panel-body flex-col-center">
+                <div id="visInst" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Documents by type") ?></div>
+              <div class="panel-body flex-col-center">
+                <div id="visType" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Documents by language") ?></div>
+              <div class="panel-body flex-col-center">
+                <div id="visLang" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Documents by access type") ?></div>
+              <div class="panel-body flex-col-center">
+                <div id="visRights" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div role="tabpanel" class="tab-pane" id="temporal-dashboard">
+        <div class="loader"></div>
+        <div class="row">
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-body flex-col-center flex flex-space-between">
+                <div>
+                  <h2><?= $this->transEsc("Total Documents") ?></h2>
+                  <span id="total-docs"></span>
+                </div>
+                <i class="fa fa-database flex icon-total-indicators"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div id="msg">
+            </div>
+            <form class="form-inline">
+              <!-- <div class="form-group">
+                <label><?= $this->transEsc("Filter by dates") ?> </label>
+              </div> -->
+              <div class="form-group">
+                <label for="docInit"><?= $this->transEsc("Start") ?>:</label>
+                <input class="form-control" type="month" id="docInit">
+              </div>
+              <div class="form-group">
+                <label for="docEnd"><?= $this->transEsc("End") ?>:</label>
+                <input class="form-control" type="month" id="docEnd">
+              </div>
+              <div class="form-group">
+                <button type="button" class="form-control btn btn-primary" id="btnDocsFind">
+                  <?= $this->transEsc("Find") ?>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Documents per month") ?></div>
+              <div class="panel-body flex-col-center">
+                <div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12 flex-col-center">
+                    <div id="visDocumentsByMonth" style="width: 100%;"></div>
+                  </div>
+                  <div class="col-md-12 col-sm-12 col-xs-12 flex-col-center">
+                    <p class="filters-title"><b><?= $this->transEsc("Source type") ?></b></p>
+                    <div data-filters-docs class="text-left">
+                    </div>
+                    <!-- <div class="temporal-dates">
+                      <div class="form-group">
+                        <label for="docInit"><?= $this->transEsc("Start") ?></label>
+                        <input class="form-control" type="month" id="docInit">
+                      </div>
+                      <div class="form-group">
+                        <label for="docEnd"><?= $this->transEsc("End") ?></label>
+                        <input class="form-control" type="month" id="docEnd">
+                      </div>
+                      <div class="form-group">
+                        <button class="form-control btn btn-primary" id="btnDocsFind">
+                          <?= $this->transEsc("Find") ?>
+                        </button>
+                      </div>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading"><?= $this->transEsc("Fonts per month") ?></div>
+              <div class="panel-body flex-col-center">
+                <div class="row">
+                  <div class="col-md-12 col-sm-12 col-xs-12 flex-col-center">
+                    <div id="visSourceByMonth" style="width: 100%;"></div>
+                  </div>
+
+                  <div class="col-md-12 col-sm-12 col-xs-12 flex-col-center">
+                    <p class="filters-title"><b><?= $this->transEsc("Source type") ?></b></p>
+                    <div data-filters-sources class="text-left">
+
+                    </div>
+                    <!-- <div class="temporal-dates">
+                      <div class="form-group">
+                        <label for="sourceInit"><?= $this->transEsc("Start") ?></label>
+                        <input class="form-control" type="month" id="sourceInit">
+                      </div>
+                      <div class="form-group">
+                        <label for="sourceEnd"><?= $this->transEsc("End") ?></label>
+                        <input class="form-control" type="month" id="sourceEnd">
+                      </div>
+                      <div class="form-group">
+                        <button class="form-control btn btn-primary" id="btnSourcesFind">
+                          <?= $this->transEsc("Find") ?>
+                        </button>
+                      </div>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+  <?php $this->headScript()->appendFile("https://unpkg.com/@popperjs/core@2"); ?>
+  <?php $this->headScript()->appendFile("https://unpkg.com/tippy.js@6"); ?>

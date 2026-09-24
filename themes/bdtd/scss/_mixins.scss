@@ -1,0 +1,37 @@
+
+// breakpoints
+// @mixin for-size($size) {
+//     @if $size == phone-only {
+//       @media ($media-sm) { @content; }
+//     } @else if $size == mobile {
+//       @media ($media-md) { @content; }
+//     } @else if $size == tablet {
+//       @media ($media-lg) { @content; }
+//     } @else if $size == desktop {
+//       @media ($media-xl) { @content; }    
+//     } @else if $size == desktop-large {
+//      // @media ($media-2xl) { @content; }
+//     } 
+//   }
+  
+ // example:   @include for-size(mobile) { ... }
+
+
+ //buttons
+@mixin bt-mixins($color-label, $color-border, $color-background, $hover-background,$hover-color) {
+    display: inline-block;
+    text-decoration: none;
+    padding: 0 $size-small-xxxs;
+    text-align: center;
+    border-radius: $border-radius-small;
+    color: $color-label;
+    border: $size-tiny-xxxs solid $color-border;
+    line-height: $size-medium-xs;
+    background-color: $color-background;
+    @extend .body-highlight;
+    transition: all ease-out 0.4s;
+    &:hover {
+      background-color: $hover-background;
+      color:$hover-color;
+    }
+  }

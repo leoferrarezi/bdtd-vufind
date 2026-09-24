@@ -1,0 +1,36 @@
+<?php if (!isset($this->indexStart)) $this->indexStart = 0; ?>
+<?php $i = $this->indexStart; ?>
+<?php
+/**
+  Customização solicitada por Blena – 06/11/2025
+  Remove da listagem pública registros 
+ * Essa abordagem evita mostrar itens indevidos sem alterar o índice Solr.
+ 
+ * ID a ocultar são definidos em Search/Results.phtml
+  e aplicados aqui para impedir a criação do card.
+ */
+
+$hiddenIds = $this->hiddenIds ?? [
+  'IEC-2_281ad121c7f952303548dc412774bb3c'
+];
+?>
+
+<?php foreach ($this->results->getResults() as $current) : ?>
+  <?php
+  if (in_array($current->getUniqueId(), $hiddenIds)) {
+    continue;
+  }
+
+  $recordNumber = $this->results->getStartRecord() + $i - $this->indexStart;
+
+  ?>
+  <div id="result<?= $i++ ?>" class="result card-results <?= $current->supportsAjaxStatus() ? ' ajaxItem' : '' ?>">
+    <?php if (isset($this->showCheckboxes) && $this->showCheckboxes) : ?>
+      <?= $this->record($current)->getCheckbox('', 'search-cart-form', $recordNumber) ?>
+    <?php endif; ?>
+    <div class="record-number">
+      <h2> <?= $recordNumber ?></h2>
+    </div>
+    <?= $this->record($current)->getSearchResult('list') ?>
+  </div>
+<?php endforeach; ?>

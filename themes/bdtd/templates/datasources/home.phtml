@@ -1,0 +1,26 @@
+<?php $this->headTitle($this->translate('Data Sources')); ?>
+<?php $this->layout()->searchbox = false; ?>
+<?php $this->layout()->layoutFull = true; ?>
+<?php $this->headLink()->appendStylesheet('loader.css'); ?>
+<?php $this->headLink()->appendStylesheet('https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css'); ?>
+<?php $this->headScript()->appendFile("https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"); ?>
+<?php $this->headScript()->appendFile("networks.js"); ?>
+<?php $this->layout()->breadcrumbs .= '<li class="active">' . '' . '</li>'; ?>
+
+<div class="container">
+
+  <h2 class="text-primary">Instituições participantes</h2>
+  <br />
+  <h4 class="text-secondary">
+    Conheça as instituições participantes da Biblioteca digital Brasileira de Teses e Dissertações (BDTD)
+  </h4>
+  <br /> <br />
+
+  <div class="networks">
+    <div class="loader"></div>
+    <button class="btn contained-primary btn-export-csv">
+      <?= $this->transEsc("Export to") ?> CSV
+    </button>
+    <div id="networksWrapper"></div>
+  </div>
+</div>

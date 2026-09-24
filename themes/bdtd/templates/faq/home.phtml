@@ -1,0 +1,186 @@
+<?php $this->headTitle($this->translate('Perguntas Frequentes')); ?>
+<?php $this->layout()->searchbox = false; ?>
+<?php $this->layout()->breadcrumbs .= '<li class="active">' . '' . '</li>'; ?>
+
+<div class="fulltext">
+  <h1 class="text-primary">FAQ</h1>
+  <br />
+  <h2 class="text-secondary">Dúvidas frequentes</h2>
+  <br /> <br />
+  <div class="faq">
+    <div class="row ">
+      <div class="col-md-12">
+        <h3 class="info-usuarios">Informações voltadas para os usuários/estudantes/pesquisadores:</h3>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#1" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('O que é a Biblioteca Digital Brasileira de Teses e Dissertações (BDTD)?'); ?></a>
+          </h3>
+          <div class="collapse" id="1">
+            <p>
+            A Biblioteca Digital Brasileira de Teses e Dissertações (BDTD) integra e dissemina, em um só portal de busca,  as teses e dissertações defendidas nas instituições brasileiras de ensino e pesquisa. O acesso a essa produção científica é livre de quaisquer custos e o texto completo se encontra nas bases das próprias instituições participantes. Além disso, a BDTD também reúne as informações de teses e dissertações defendidas por brasileiros em instituições de ensino estrangeiras.</p>
+            <p>
+            A BDTD contribui para o aumento de conteúdos de teses e dissertações brasileiras na internet, o que significa a maior visibilidade da produção científica nacional e a difusão de informações de interesse científico e tecnológico para a sociedade em geral. Ademais, a BDTD também proporciona maior visibilidade e governança do investimento realizado em programas de pós-graduação.
+            A BDTD fornece as informações contidas nas bases de teses e dissertações das instituições brasileiras participantes, como resumo, título, ano de defesa, autor, membros da banca, orientador e link do documento abrigado na instituição de defesa, que terá o texto completo da obra para realizar o download, impressão e leitura.
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#2" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('O que devo fazer para que minha tese e/ou dissertação seja coletada pela BDTD?'); ?></a>
+          </h3>
+          <div class="collapse" id="2">
+            <p>
+              Para que seu documento possa ser coletado pela BDTD é essencial que ele esteja disponível em umas das fontes de informação científica coletadas pelo Portal. Consulte no menu dentro da aba de Redes as <a href="../datasources">instituições participantes</a> para verificar se a fonte de informação em que seu documento foi publicado já faz parte da BDTD.</p>
+
+            <p>Caso a fonte de informação em que se encontra o seu documento ainda não seja coletada pela BDTD, sugerimos que, inicialmente, entre em contato com o gestor da instituição para que ele possa acionar a equipe da BDTD. Caso a sua instituição de defesa não tenha uma Biblioteca local de teses e dissertações ou um Repositório Digital orientamos que faça o auto depósito de seu trabalho no <a href="https://deposita.ibict.br/" target="_blank" rel="noopener noreferrer">Repositório Comum do Brasil (Deposita)</a>, o qual é coletado pela BDTD.</p>
+
+            <p>Para aqueles que obtiveram o grau de mestre ou doutor em instituição estrangeira, a orientação é que faça o auto depósito de seu trabalho no Deposita.
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#3" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Gostaria de incluir minha tese ou dissertação na BDTD, é possível realizar o autodepósito?'); ?></a>
+          </h3>
+          <div class="collapse" id="3">
+            <p>
+              Não é possível realizar o autodepósito da tese ou dissertação, pois as informações contidas na BDTD são coletadas apenas das <a href="https://bdtd.ibict.br/vufind/datasources/home" target="_blank" rel="noopener noreferrer">instituições participantes</a>. Caso a sua instituição não esteja entre as instituições participantes, sugerimos que entre em contato com a biblioteca da instituição de defesa indicando a integração da mesma junto à BDTD, e para isso a instituição deve entrar em contato com nossa equipe demonstrando esse interesse, por meio do e-mail: equipebdtd@ibict.br.
+              .</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#4" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Não encontrei minha tese e/ou dissertações na BDTD, como devo proceder?'); ?></a>
+          </h3>
+          <div class="collapse" id="4">
+            <p>A BDTD coleta as informações sobre as teses e dissertações disponibilizadas nos sistemas de informação das instituições que participam da Rede.</p>
+            <p>
+              O primeiro passo é contactar a instituição em que foi submetido o trabalho para averiguar se consta na Biblioteca Digital da própria instituição. Em caso positivo, o sistema de coleta disponibilizará o trabalho no catálogo da BDTD. Em casos especiais o autor ou instituição pode entrar em contato com o suporte para certificarmos se existe alguma incompatibilidade no sistema de interoperabilidade.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#5" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Como realizar busca (avançada) na BDTD?'); ?></a>
+          </h3>
+          <div class="collapse" id="5">
+            <p>A BDTD possui uma lista de dicas para auxiliar na busca avançada, para conhecer mais sobre é só acessar: 
+             <ul>
+              <li>
+              <a href="https://bdtd.ibict.br/vufind/Help/Home?topic=search&_=1764177306" target="_blank" rel="noopener noreferrer">Dicas para buscas</a> 
+              </li>   
+              <li>
+              <a href="https://bdtd.ibict.br/vufind/Help/Home?topic=advsearch&_=1764177373" target="_blank" rel="noopener noreferrer">Dicas avançadas de pesquisa</a></p>
+              </li>    
+             </ul>
+               
+            <p>
+              Atenção na estratégia de busca utilizada, muitos termos ou filtros podem retornar resultados vazios, o limite é em torno de 2 mil caracteres, busque apoio de um profissional bibliotecário da sua instituição.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#6" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Não consigo acessar o texto completo da tese ou dissertação, como devo proceder?'); ?></a>
+          </h3>
+          <div class="collapse" id="6">
+            <p>Não é possível obter acesso ao texto completo ou o PDF da obra na BDTD. A BDTD disponibiliza o link de acesso à obra que será direcionado ao site da biblioteca digital/repositório da instituição de defesa, a qual será possível ter o PDF e o texto completo da tese ou dissertação.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#7" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Como funciona o processo de exportação?'); ?></a>
+          </h3>
+          <div class="collapse" id="7">
+            <p>Como a BDTD coleta dados de diferentes sistemas e diferentes configurações, isso pode ocasionar erros. Quando encontrar um erro, orientamos que entre em contato com a instituição que mantém o trabalho em algum dos seus serviços digitais (repositórios ou bibliotecas), solicitando a correção e atualização das informações na base. Para que a atualização possa ser apresentada na BDTD, solicite que o ambiente OAI-PMH da base seja atualizado também.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#8" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Observei informações incorretas ou incompletas na BDTD, como devo proceder?'); ?></a>
+          </h3>
+          <div class="collapse" id="8">
+            <p>A BDTD disponibiliza a ferramenta de exportação dos resultados das buscas, no topo da página, com as opções de exportar nos formatos RIS (dados em linhas, ótimo para programas de citação e gerenciadores de referências) ou CSV (dados em tabelas/planilhas, ótimo para programas de planilhas, exemplo, Google sheets, Microsoft Excel ou OpenOffice). </p>
+            <p>
+              As informações apresentadas na BDTD são preenchidas única e exclusivamente pelas instituições participantes, logo, ao exportar os dados as informações podem apresentar algumas inconsistências, caso tenha algum problema entre em contato com o suporte da BDTD.
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#9" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Posso baixar o arquivo das teses e dissertações diretamente da BDTD? '); ?></a>
+          </h3>
+          <div class="collapse" id="9">
+            <p>Não é disponibilizada essa opção, realizamos a coleta das informações contidas nas instituições de defesa. Ao acessar o link da obra na BDTD, você será direcionado ao repositório ou biblioteca digital da instituição em que está depositado o trabalho.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#10" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Por que na busca facetada aparecem autores como “não informado“,  “-“ ou  “x“?'); ?></a>
+          </h3>
+          <div class="collapse" id="10">
+            <p>O preenchimento dos campos de autor, entre outros, é realizado única e exclusivamente pela instituição participante do consórcio e apenas coletamos as informações do mesmo modo que constam no repositório/biblioteca digital da instituição.</p>
+            <p>
+              Estamos em contato diariamente com as instituições a fim de que elas alterem para facilitar a busca de informações pelos nossos usuários, contudo, caso ainda vejam essas informações, nos sinalizem para que averiguemos a situação.
+            </p>
+          </div>
+        </div>
+        <h3 class="info-gestores">Informações voltadas para os gestores:</h3>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#11" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Quais os procedimentos para que a minha instituição passe a integrar a BDTD?'); ?></a>
+          </h3>
+          <div class="collapse" id="11">
+            <p>
+              Para integração da sua instituição à BDTD necessitamos que nos encaminhe um Ofício para formalizar a solicitação, informando previamente o nome do responsável da Biblioteca (ou do responsável pelo gerenciamento informacional do sistema que disponibiliza teses e dissertações da instituição, caso essa gestão seja feita separadamente), e-mail, telefone para contato, nome, sigla e endereço da Instituição e breve informação sobre o(s) curso(s) de pós-graduação stricto sensu.</p>
+
+            <p>Após recebimento do documento, a Equipe BDTD entrará em contato com o(a) responsável indicado(a) para o seguimento do processo de integração à BDTD.</p>
+
+            <p>Contate-nos pelo email: <b>equipebdtd@ibict.br</b></p>
+
+            <p> <a href="/vufind/MODELO-DE-OFICIO.docx" target="_blank" rel="noopener noreferrer">
+                Link para o modelo de ofício</a>.
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#12" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Quais as vantagens da minha instituição integrar a BDTD?'); ?></a>
+          </h3>
+          <div class="collapse" id="12">
+            <p>
+              Sendo coletada pela BDTD, a instituição por meio de sua biblioteca digital passa a contribuir para o aumento da visibilidade dos conteúdos compartilhados. Sendo a BDTD uma referência de infraestrutura informacional e interoperabilidade de dados a produção científica informacional ganha projeção, também, no cenário internacional por meio de acordos de compartilhamento de dados entre a BDTD e a <a href="https://ndltd.org/" target="_blank" rel="noopener noreferrer">Networked Digital Library of Theses and Dissertations (NDLTD)</a>, que é uma organização dedicada a promover a disseminação, preservação e uso das teses e dissertações eletrônicas.
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#13" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('A coleta de dados da minha instituição não está atualizada, o que fazer?'); ?></a>
+          </h3>
+          <div class="collapse" id="13">
+            <p>
+              O primeiro passo é verificar a quantidade total de documentos depositados na interface de usuário. Ao fazer uma busca em branco é possível verificar quantos documentos estão depositados na base.
+            </p>
+            <p>
+              Após isso, verifique se o quantitativo de documentos indexados na interface OAI do repositório é o mesmo da interface de usuário. Em caso negativo, solicite ao responsável técnico de sua instituição que faça a atualização da interface OAI. Em caso positivo, entre em contato com a equipe BDTD para verificarmos outras possibilidades.
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#14" aria-expanded="false" aria-controls="footwear">
+              <?= $this->transEsc('Quais os metadados que mais precisam de atenção, na descrição das teses e dissertações?'); ?></a>
+          </h3>
+          <div class="collapse" id="14">
+            <p>Idioma: segue-se o formato segundo a <a href="https://iso639-3.sil.org/code_tables/639/data" target="_blank" rel="noopener noreferrer">ISO 639-3</a>, em que é utilizado apenas três letras para indicar o idioma do documento, por exemplo: <strong>por, eng, spa;</strong></p>
+            <p>Data: segue a <a href="https://www.iso.org/iso-8601-date-and-time-format.html" target="_blank" rel="noopener noreferrer">ISO 8601</a>, que consiste em ano, mês e dia, por exemplo: <strong>2019-05-30;</strong></p>
+            <p>Autor: Seguindo o Dublin Core (DC), “os nomes autores ou criadores deve ser devem ser indicados na mesma ordem que eles aparecem na publicação/recurso. Nomes pessoais devem ser indicados pelo sobrenome ou pelo primeiro nome de família, seguidos pelos prenomes. Na dúvida, atribuir o nome como aparece, e não invertê-lo” <a href="https://www.scielo.br/j/ci/a/tcW3q4WvNBQNTqTyLK8qfFF/#:~:text=Dublin%20Core%20pode%20ser%20definido,a%20descri%C3%A7%C3%A3o%20de%20recursos%20eletr%C3%B4nicos." target="_blank" rel="noopener noreferrer">(Souza; Vendrusculo; Melo, 2000);</a></p>
+            <p>Tipo: Seguindo o Dublin Core (DC), o tipo pode ser preenchido com texto, imagem, software, entre outros. No caso do texto, “recursos que na maioria das vezes são de natureza textual, cujo conteúdo é formado de palavras para leitura, mas pode incluir imagens de texto, tabelas e outros formatos do gênero texto. Exemplos: abstracts, anúncios, correspondências (e-mail, cartas, cartões postais), dicionários, home page, índices, manuais, manuscritos, minutas, monografias, panfletos, poemas, pré-print, proceedings, publicações seriadas (periódicos, jornais), relatórios técnicos”, teses e dissertações <a href="https://www.scielo.br/j/ci/a/tcW3q4WvNBQNTqTyLK8qfFF/#:~:text=Dublin%20Core%20pode%20ser%20definido,a%20descri%C3%A7%C3%A3o%20de%20recursos%20eletr%C3%B4nicos." target="_blank" rel="noopener noreferrer">(Souza; Vendrusculo; Melo, 2000).</a></p>
+          </div>
+        </div>
+        <br />
+        <p><b>Não encontrou o que procurava?</b></p>
+        <p>Entre em contato com a nossa equipe e faremos o possível para te ajudar.</p>
+        <a class="btn contained-primary fit-content" id="feedbackFaq" data-lightbox href="<?= $this->url('feedback-home') ?>"><?= $this->transEsc("Suporte") ?></a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

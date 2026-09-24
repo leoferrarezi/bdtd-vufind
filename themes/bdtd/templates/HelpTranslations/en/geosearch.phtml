@@ -1,0 +1,27 @@
+<?php $this->headTitle('Dicas Avançadas de Pesquisa'); ?>
+<?php $this->layout()->searchbox = false; ?>
+<?php $this->layout()->breadcrumbs .= '<li class="active">' . '' . '</li>'; ?>
+
+<div class="fulltext">
+  <h1 class="text-primary">Geographic Search Tips</h1>
+  <dl class="Content">
+    <dt></dt>
+    <dd>
+      <h2 class="text-secondary">To draw the search box:</h2>
+      <ol>
+        <li>Click on the 'Draw Search Box' button.</li>
+        <li>Click and drag to create the search box over the area of the map you wish to search.</li>
+      </ol>
+      <h2 class="text-secondary">Interacting with the search results</h2>
+      <p>Search results are displayed on the map as clusters (circular icons with numbers). The numbers represent
+        the number of records in each cluster. A list of results is displayed below the map view. </p>
+      <p>You can interact with the map by zooming by either using the zoom buttons (+/-) or by using the mouse to
+        double-click (zoom in) or shift + double-click (zoom out). You can also click on a cluster to zoom to
+        the features in that cluster. </p>
+      <p>Clusters will de-aggregate as you zoom in or click on a cluster. Icons with rounded tops are point features.
+        Icons with square tops are the center point of a rectangle feature. Click on the icon to see the record title
+        associated with the icon. If there are multiple icons associated with the same record, they will all be highlighted
+        in blue. Each title is hyperlinked to the associated record. Click on the title to view the full record.</p>
+    </dd>
+  </dl>
+</div>

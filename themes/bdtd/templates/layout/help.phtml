@@ -1,0 +1,298 @@
+<?= $this->doctype('HTML5') ?>
+<html lang="<?= $this->layout()->userLang ?>" <?php if ($this->layout()->rtl) : ?> dir="rtl" <?php endif; ?>>
+
+<head>
+  <?php $this->headThemeResources(); ?>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <?= $this->headMeta() ?>
+  <?= $this->headTitle() ?>
+  <?php
+  // Set up OpenSearch link:
+  $this->headLink(
+    [
+      'href' => $this->url('search-opensearch') . '?method=describe',
+      'type' => 'application/opensearchdescription+xml',
+      'title' => $this->transEsc('Library Catalog Search'),
+      'rel' => 'search'
+    ]
+  );
+  ?>
+  <!-- RTL styling -->
+  <?php if ($this->layout()->rtl) {
+    $this->headLink()->appendStylesheet('vendor/bootstrap-rtl.min.css');
+  } ?>
+  <?= $this->headLink() ?>
+  <?= $this->headStyle() ?>
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+  <?php
+  // Collect small scripts together and append as one block:
+  $appendScripts = [];
+
+  if (!isset($this->renderingError)) {
+    // Add translation strings
+    $this->jsTranslations()->addStrings(
+      [
+        'add_tag_success' => 'add_tag_success',
+        'bulk_email_success' => 'bulk_email_success',
+        'bulk_noitems_advice' => 'bulk_noitems_advice',
+        'bulk_save_success' => 'bulk_save_success',
+        'close' => 'close',
+        'collection_empty' => 'collection_empty',
+        'eol_ellipsis' => 'eol_ellipsis',
+        'error_occurred' => 'An error has occurred',
+        'go_to_list' => 'go_to_list',
+        'hold_available' => 'hold_available',
+        'libphonenumber_invalid' => 'libphonenumber_invalid',
+        'libphonenumber_invalidcountry' => 'libphonenumber_invalidcountry',
+        'libphonenumber_invalidregion' => 'libphonenumber_invalidregion',
+        'libphonenumber_notanumber' => 'libphonenumber_notanumber',
+        'libphonenumber_toolong' => 'libphonenumber_toolong',
+        'libphonenumber_tooshort' => 'libphonenumber_tooshort',
+        'libphonenumber_tooshortidd' => 'libphonenumber_tooshortidd',
+        'loading' => 'Loading',
+        'more' => 'more',
+        'number_thousands_separator' => [
+          'number_thousands_separator',
+          null,
+          ','
+        ],
+        'sms_success' => 'sms_success'
+      ]
+    );
+    // Add libphonenumber.js strings
+    $this->jsTranslations()->addStrings(
+      [
+        "Phone number invalid" => 'libphonenumber_invalid',
+        "Invalid country calling code" => 'libphonenumber_invalidcountry',
+        "Invalid region code" => 'libphonenumber_invalidregion',
+        "The string supplied did not seem to be a phone number" => 'libphonenumber_notanumber',
+        "The string supplied is too long to be a phone number" => 'libphonenumber_toolong',
+        "The string supplied is too short to be a phone number" => 'libphonenumber_tooshort',
+        "Phone number too short after IDD" => 'libphonenumber_tooshortidd'
+      ]
+    );
+    // Deal with cart stuff:
+    $cart = $this->cart();
+    if ($cart->isActive()) {
+      $this->headScript()->appendFile("vendor/js.cookie.js");
+      $this->headScript()->appendFile("cart.js");
+      $domain = $cart->getCookieDomain();
+      if (!empty($domain)) {
+        $appendScripts[] = 'VuFind.cart.setDomain("' . $domain . '");';
+      }
+      $cookiePath = $cart->getCookiePath();
+      if (!empty($cookiePath)) {
+        $appendScripts[] = 'VuFind.cart.setCookiePath("' . $cookiePath . '");';
+      }
+      $cookieSameSite = $cart->getCookieSameSite();
+      if (null !== $cookieSameSite) {
+        $appendScripts[] = 'VuFind.cart.setCookieSameSite("' . $cookieSameSite . '");';
+      }
+      $this->jsTranslations()->addStrings(
+        [
+          'addBookBag' => 'Add to Book Bag',
+          'bookbagFull' => 'bookbag_full_msg',
+          'bookbagMax' => $cart->getMaxSize(),
+          'bookbagStatusFull' => 'bookbag_full',
+          'confirmDelete' => 'confirm_delete',
+          'confirmEmpty' => 'bookbag_confirm_empty',
+          'itemsAddBag' => 'items_added_to_bookbag',
+          'itemsInBag' => 'items_already_in_bookbag',
+          'removeBookBag' => 'Remove from Book Bag',
+          'viewBookBag' => 'View Book Bag'
+        ]
+      );
+    }
+    $this->headScript()->prependScript(
+      'var userIsLoggedIn = ' . ($this->auth()->isLoggedIn() ? 'true' : 'false') . ';'
+    );
+  }
+
+  // Session keep-alive
+  if ($this->keepAlive()) {
+    $appendScripts[] = 'var keepAliveInterval = ' . $this->keepAlive() . ';';
+    $this->headScript()->appendFile("keep_alive.js");
+  }
+
+  // If account ajax is active, load script and add language strings
+  $account = $this->auth()->getManager();
+  if ($account->ajaxEnabled()) {
+    $this->headScript()->appendFile("account_ajax.js");
+    $this->jsTranslations()->addStrings(
+      [
+        'account_checkouts_due' => 'account_checkouts_due',
+        'account_checkouts_overdue' => 'account_checkouts_overdue',
+        'account_has_alerts' => 'account_has_alerts',
+        'account_normal_checkouts' => 'account_normal_checkouts',
+        'account_requests_available' => 'account_requests_available',
+        'account_requests_in_transit' => 'account_requests_in_transit',
+      ]
+    );
+  }
+
+  $root = rtrim($this->url('home'), '/');
+  $translations = $this->jsTranslations()->getJSON();
+  $dsb = DEFAULT_SEARCH_BACKEND;
+  $appendScripts[] = <<<JS
+VuFind.path = '{$root}';
+VuFind.defaultSearchBackend = '{$dsb}';
+VuFind.addTranslations({$translations});
+JS;
+  $this->headScript()->appendScript(implode("\n", $appendScripts));
+
+  if ($this->config()->ajaxCoversEnabled()) {
+    $this->headScript()->appendFile("covers.js");
+  }
+  ?>
+  <?= $this->headScript() ?>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HDE70XCBE2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'G-HDE70XCBE2');
+  </script>
+</head>
+
+<body class="template-dir-<?= $this->templateDir ?> template-name-<?= $this->templateName ?> <?= $this->layoutClass('offcanvas-row') ?><?php if ($this->layout()->rtl) : ?> rtl<?php endif; ?>">
+  <?php // Set up the  search box -- there are three possible cases:
+  // 1. No search box was set; we should default to the normal box
+  // 2. It was set to false; we should display nothing
+  // 3. It is set to a custom string; we should display the provided version
+  // Set up default search box if no data was provided from the template;
+  // this covers case 1.  Cases 2 and 3 are then covered by logic below.
+  if (!isset($this->layout()->searchbox)) {
+    $this->layout()->searchbox = $this->render('search/searchbox.phtml');
+  }
+  ?>
+  <div id="barra-brasil" style="background:#7F7F7F; height: 20px; padding:0 0 0 10px;display:block;">
+    <ul id="menu-barra-temp" style="list-style:none;">
+      <li style="display:inline; float:left;padding-right:10px; margin-right:10px; border-right:1px solid #EDEDED">
+        <a href="http://brasil.gov.br" style="font-family:sans,sans-serif; text-decoration:none; color:white;">Portal do
+          Governo Brasileiro</a>
+      </li>
+    </ul>s
+  </div>
+  <header class="navbar">
+    <?php if (isset($this->layout()->srmessage)) : // message for benefit of screen-reader users 
+    ?>
+      <span class="sr-only" role="heading" aria-level="1"><?= $this->layout()->srmessage ?></span>
+    <?php endif; ?>
+    <a class="sr-only" href="#content"><?= $this->transEsc('Skip to content') ?></a>
+    <?= $this->render('header.phtml') ?>
+  </header>
+  <?php if ($this->layout()->searchbox !== false) : ?>
+    <div class="searchHomeContent">
+      <div class="search container navbar">
+        <nav class="nav searchbox hidden-print">
+          <?= $this->layout()->searchbox ?>
+        </nav>
+      </div>
+    </div>
+  <?php endif; ?>
+  <nav class="breadcrumbs" aria-label="<?= $this->transEscAttr('Breadcrumbs') ?>">
+    <div class="container">
+      <?php if ((!isset($this->layout()->showBreadcrumbs) || $this->layout()->showBreadcrumbs == true)
+        && !empty($this->layout()->breadcrumbs)
+        && $this->layout()->breadcrumbs !== false
+      ) : ?>
+        <ul class="breadcrumb hidden-print">
+          <?php if (is_array($this->layout()->breadcrumbs)) : ?>
+            <?php if (count($this->layout()->breadcrumbs) > 1) : ?>
+              <?= $this->render('breadcrumbs/multi.phtml', [
+                'parents' => $this->layout()->breadcrumbs,
+                'title' => $this->layout()->title,
+                'from' => $this->layout()->from
+              ]) ?>
+            <?php else : ?>
+              <?= $this->render('breadcrumbs/default.phtml', [
+                'parents' => $this->layout()->breadcrumbs,
+                'title' => $this->layout()->title
+              ]) ?>
+            <?php endif; ?>
+          <?php else : ?>
+            <?= $this->layout()->breadcrumbs ?>
+          <?php endif; ?>
+        </ul>
+      <?php endif; ?>
+    </div>
+  </nav>
+  <div role="main" class="main">
+    <div id="content" class="<?php if ($this->layout()->layoutFull) : ?>container-fluid<?php else : ?>container<?php endif; ?>">
+      <?= $this->layout()->content ?>
+    </div>
+  </div>
+  <?= $this->render('footer.phtml') ?>
+  <!-- MODAL IN CASE WE NEED ONE -->
+  <div id="modal" class="modal fade hidden-print" tabindex="-1" role="dialog" aria-labelledby="modal-title" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal">
+          <svg aria-label="<?= $this->transEscAttr('Close') ?>" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        <div class="modal-body"><?= $this->transEsc('Loading') ?>...</div>
+      </div>
+    </div>
+  </div>
+  <div class="offcanvas-overlay" data-toggle="offcanvas"></div>
+  <?= $this->googleanalytics() ?>
+  <?= $this->piwik() ?>
+  <?php foreach ($this->captcha()->js() as $jsInclude) : ?>
+    <?= $this->inlineScript(\Laminas\View\Helper\HeadScript::FILE, $jsInclude, 'SET') ?>
+  <?php endforeach; ?>
+
+  <div class="translateBtn">
+    <div>
+      <a class="toggle-me" tooltipbtn="Traduzir página">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0" y="0" viewBox="0 0 998.1 998.3" xml:space="preserve">
+          <path fill="#DBDBDB" d="M931.7 998.3c36.5 0 66.4-29.4 66.4-65.4V265.8c0-36-29.9-65.4-66.4-65.4H283.6l260.1 797.9h388z" />
+          <path fill="#DCDCDC" d="M931.7 230.4c9.7 0 18.9 3.8 25.8 10.6 6.8 6.7 10.6 15.5 10.6 24.8v667.1c0 9.3-3.7 18.1-10.6 24.8-6.9 6.8-16.1 10.6-25.8 10.6H565.5L324.9 230.4h606.8m0-30H283.6l260.1 797.9h388c36.5 0 66.4-29.4 66.4-65.4V265.8c0-36-29.9-65.4-66.4-65.4z" />
+          <polygon fill="#4352B8" points="482.3,809.8 543.7,998.3 714.4,809.8" />
+          <path fill="#607988" d="M936.1 476.1V437H747.6v-63.2h-61.2V437H566.1v39.1h239.4c-12.8 45.1-41.1 87.7-68.7 120.8-48.9-57.9-49.1-76.7-49.1-76.7h-50.8s2.1 28.2 70.7 108.6c-22.3 22.8-39.2 36.3-39.2 36.3l15.6 48.8s23.6-20.3 53.1-51.6c29.6 32.1 67.8 70.7 117.2 116.7l32.1-32.1c-52.9-48-91.7-86.1-120.2-116.7 38.2-45.2 77-102.1 85.2-154.2H936v.1z" />
+          <path fill="#4285F4" d="M66.4 0C29.9 0 0 29.9 0 66.5v677c0 36.5 29.9 66.4 66.4 66.4h648.1L454.4 0h-388z" />
+          <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="534.3" y1="433.2" x2="998.1" y2="433.2">
+            <stop offset="0" stop-color="#fff" stop-opacity=".2" />
+            <stop offset="1" stop-color="#fff" stop-opacity=".02" />
+          </linearGradient>
+          <path fill="url(#a)" d="M534.3 200.4h397.4c36.5 0 66.4 29.4 66.4 65.4V666L534.3 200.4z" />
+          <path fill="#EEEEEE" d="M371.4 430.6c-2.5 30.3-28.4 75.2-91.1 75.2-54.3 0-98.3-44.9-98.3-100.2s44-100.2 98.3-100.2c30.9 0 51.5 13.4 63.3 24.3l41.2-39.6c-27.1-25-62.4-40.6-104.5-40.6-86.1 0-156 69.9-156 156s69.9 156 156 156c90.2 0 149.8-63.3 149.8-152.6 0-12.8-1.6-22.2-3.7-31.8h-146v53.4l91 .1z" />
+          <radialGradient id="b" cx="65.208" cy="19.366" r="1398.271" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#fff" stop-opacity=".1" />
+            <stop offset="1" stop-color="#fff" stop-opacity="0" />
+          </radialGradient>
+          <path fill="url(#b)" d="M931.7 200.4H518.8L454.4 0h-388C29.9 0 0 29.9 0 66.5v677c0 36.5 29.9 66.4 66.4 66.4h415.9l61.4 188.4h388c36.5 0 66.4-29.4 66.4-65.4V265.8c0-36-29.9-65.4-66.4-65.4z" />
+        </svg>
+      </a>
+    </div>
+    <div id="google_translate_element"></div>
+  </div>
+
+
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'pt'
+      }, 'google_translate_element');
+    }
+  </script>
+  <script>
+    jQuery('.toggle-me').click(function() {
+      jQuery('.translateBtn').toggleClass('active');
+    });
+  </script>
+  <script async type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <!-- Plugin de acessibilidade user way -->
+  <script src="https://cdn.userway.org/widget.js" data-account="gxYK4Xrqhn"></script>
+
+</body>
+
+</html>
