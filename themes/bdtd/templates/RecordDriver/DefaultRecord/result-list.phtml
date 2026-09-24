@@ -48,6 +48,7 @@
       <?php /* BDTD: bloco de autoria com ícone, autores e data */ ?>
       <div class="author">
         <div class="icon" aria-hidden="true"><?=$this->icon('bdtd-author')?></div>
+        <div class="author-info">
         <?php if ($this->driver->isCollection()): ?>
           <?=implode('<br>', array_map([$this, 'escapeHtml'], $this->driver->getSummary())); ?>
         <?php else: ?>
@@ -85,6 +86,7 @@
             </div>
           <?php endforeach; ?>
         <?php endif; ?>
+        </div>
       </div>
 
       <?php

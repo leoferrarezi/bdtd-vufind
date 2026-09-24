@@ -107,8 +107,7 @@
   overflow: visible;
 }
 
-/* Autor e data em linhas separadas, como no legado */
-.card-results .author .authors,
-.card-results .author .publish-date {
+/* Autor e data empilhados ao lado do ícone, como no legado */
+.card-results .author .author-info > div {
   display: block;
 }
