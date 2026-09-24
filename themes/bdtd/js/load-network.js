@@ -1,4 +1,8 @@
 async function getANetworkByName(networkId) {
+  // BDTD (VuFind 11): sem oasisbr-api configurada (Apis.ini), não há detalhe da fonte
+  if (!REMOTE_API_URL) {
+    return null;
+  }
   try {
     showLoader();
     const response = await axios.get(`${REMOTE_API_URL}/networks/${networkId}`);
@@ -116,6 +120,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const networkId = urlParams.get('id');
   const network = await getANetworkByName(networkId);
+  if (!network) {
+    showMessageError('#dataSource');
+    return;
+  }
   setCustomColor(network.sourceType);
   fillDatasource(network);
 });

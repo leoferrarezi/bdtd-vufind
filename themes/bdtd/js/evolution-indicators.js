@@ -1,4 +1,9 @@
 async function getIndicatorsFromRemoteApiBy(filter) {
+  // BDTD (VuFind 11): sem oasisbr-api configurada (Apis.ini), mostra o aviso e não consulta
+  if (!REMOTE_API_URL) {
+    showMessageError('#temporal-dashboard');
+    return null;
+  }
   try {
     showLoader();
     const response = await axios.get(`${REMOTE_API_URL}${filter}`);
@@ -515,6 +520,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   evolutionIndicators = await getIndicatorsFromRemoteApiBy(
     '/evolution-indicators'
   );
+  if (!Array.isArray(evolutionIndicators)) {
+    return; // API indisponível: o aviso já foi exibido
+  }
   fillSourceTypeNamesAndAbbreviationMap();
   createChartSourcesByMonth(evolutionIndicators, diffOfMonths);
   createChartDocumentsByMonth(evolutionIndicators, diffOfMonths);
