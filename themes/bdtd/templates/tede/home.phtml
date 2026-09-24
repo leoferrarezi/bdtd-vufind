@@ -1,6 +1,6 @@
 <?php $this->headTitle('TEDE'); ?>
 <?php $this->layout()->searchbox = false; ?>
-<?php $this->layout()->breadcrumbs .= '<li class="active">' . '' . '</li>'; ?>
+<?php $this->breadcrumbs()->add('TEDE', active: true); ?>
 
 <div class="fulltext">
     <h2 class="text-primary">TEDE</h2>
@@ -26,7 +26,7 @@
     </p>
     <p>
         <a href="#" target="_blank">
-            <span class="glyphicon glyphicon-download fa-2x"> </span> Manual de usuário do TEDE 2
+            <?=$this->icon('bdtd-download', 'fa-2x')?> Manual de usuário do TEDE 2
         </a>
     </p>
     <p>
@@ -35,32 +35,32 @@
     <p>
 
         <a href="#" target="_blank">
-            <span class="glyphicon glyphicon-link "> </span> TEDE / TEDE 2
+            <?=$this->icon('bdtd-link')?> TEDE / TEDE 2
         </a>
     </p>
     <p>
         <a href="#" target="_blank">
-            <span class="glyphicon glyphicon-link "> </span> Instalação, migração e configuração do TEDE 2
+            <?=$this->icon('bdtd-link')?> Instalação, migração e configuração do TEDE 2
         </a>
     </p>
     <p>
         <a href="#" target="_blank">
-            <span class="glyphicon glyphicon-link "> </span> Matriz de novas funcionalidades implementadas na customização DSpace/TEDE 2
+            <?=$this->icon('bdtd-link')?> Matriz de novas funcionalidades implementadas na customização DSpace/TEDE 2
         </a>
     </p>
     <p>
         <a href="#" target="_blank">
-            <span class="glyphicon glyphicon-link "> </span> Manual de usuário do TEDE 2
+            <?=$this->icon('bdtd-link')?> Manual de usuário do TEDE 2
         </a>
     </p>
     <p>
         <a href="#" target="_blank">
-            <span class="glyphicon glyphicon-link "> </span> Configurações básicas / avançadas
+            <?=$this->icon('bdtd-link')?> Configurações básicas / avançadas
         </a>
     </p>
     <p>
         <a href="#" target="_blank">
-            <span class="glyphicon glyphicon-link "> </span> Problema / solução (Troubleshooting) - TEDE 2
+            <?=$this->icon('bdtd-link')?> Problema / solução (Troubleshooting) - TEDE 2
         </a>
 
     </p>

@@ -1,264 +1,266 @@
 <?php
-// Set page title.
-$this->headTitle($this->translate('Advanced Search'));
+  // BDTD: baseado em bootstrap5/templates/search/advanced/layout.phtml (VuFind 11.1.0):
+  // faixa superior com contadores, ajuda no topo, seletor de combinação no topo de cada
+  // grupo, atalhos e bloco institucional embaixo. Mudanças marcadas com "BDTD".
+  // Set page title.
+  $this->headTitle($this->translate('Advanced Search'));
+  $this->layout()->layoutFull = true;
+  $this->assetManager()->appendScriptLink('indicators-home.js');
 
-// Disable top search box -- this page has a special layout.
-$this->layout()->searchbox = false;
-$this->layout()->breadcrumbs = false;
-$this->layout()->layoutFull = true;
+  // Disable top search box -- this page has a special layout.
+  $this->layout()->searchbox = false;
 
+  // BDTD: sem breadcrumbs (página de faixa inteira, como a home)
+  $this->breadcrumbs()->disable();
 
-// Set up saved search details:
-if (isset($this->saved) && is_object($this->saved)) {
-  $searchDetails = $this->saved->getParams()->getQuery();
-  if ($searchDetails instanceof \VuFindSearch\Query\Query) {
-    // Not an advanced query -- ignore it.
-    $searchDetails = $groups = false;
+  // Set up saved search details:
+  if (isset($this->saved) && is_object($this->saved)) {
+    $searchDetails = $this->saved->getParams()->getQuery();
+    if ($searchDetails instanceof \VuFindSearch\Query\Query) {
+        // Not an advanced query -- ignore it.
+        $searchDetails = $groups = false;
+    } else {
+        $groups = $searchDetails->getQueries();
+    }
+    $hasDefaultsApplied = $this->saved->getParams()->hasDefaultsApplied();
+    $checkboxFilters = array_filter(
+        $this->saved->getParams()->getCheckboxFacets(),
+        function ($current) {
+            return $current['selected'];
+        }
+    );
+    $searchFilters = $this->saved->getParams()->getFilterList(true);
+    $hiddenFilters = $this->saved->getParams()->getHiddenFilters();
   } else {
-    $groups = $searchDetails->getQueries();
+    $hasDefaultsApplied = $searchDetails = $checkboxFilters = $searchFilters = $groups = false;
+    $hiddenFilters = $this->searchTabs()->getHiddenFilters($this->searchClassId, true);
   }
-  $hasDefaultsApplied = $this->saved->getParams()->hasDefaultsApplied();
-  $searchFilters = $this->saved->getParams()->getFilterList();
-  $hiddenFilters = $this->saved->getParams()->getHiddenFilters();
-} else {
-  $hasDefaultsApplied = $searchDetails = $searchFilters = $groups = false;
-  $hiddenFilters = $this->searchTabs()->getHiddenFilters($this->searchClassId, true);
-}
 
-// Step 1: Load the javascript
-$this->headScript()->appendFile(
-  $this->advancedSearchJsOverride ?? 'advanced_search.js'
-);
-// Step 2: Build the page
-$this->headScript()->appendScript(
-  $this->partial(
-    $this->buildPageOverride ?? 'search/advanced/build_page.phtml',
-    ['options' => $this->options, 'searchDetails' => $searchDetails]
-  )
-);
+  // Step 1: Load the javascript
+  $this->assetManager()->appendScriptLink(
+      $this->advancedSearchJsOverride ?? 'advanced_search.js'
+  );
+  // Step 2: Build the page
+  $this->assetManager()->appendScriptString(
+      $this->partial(
+          $this->buildPageOverride ?? 'search/advanced/build_page.phtml',
+          ['options' => $this->options, 'searchDetails' => $searchDetails]
+      )
+  );
 
-// Collect previous search queries
-$setSearchGroups = [];
-$setGroupCount = 0;
-$setQueries = [];
-if (isset($searchDetails) && is_object($searchDetails)) {
-  foreach ($searchDetails->getQueries() as $group => $searchGroup) {
-    $setSearchGroups[$group] = $searchGroup->isNegated() ? 'NOT' : $searchGroup->getOperator();
-    if ($setGroupCount < $group) {
-      $setGroupCount = $group;
-    }
-    if (!isset($setQueries[$group])) {
-      $setQueries[$group] = [];
-    }
-    foreach ($searchGroup->getQueries() as $search) {
-      $setQueries[$group][] = $search;
+  // Collect previous search queries
+  $setSearchGroups = [];
+  $setGroupCount = 0;
+  $setQueries = [];
+  if (isset($searchDetails) && is_object($searchDetails)) {
+    foreach ($searchDetails->getQueries() as $group => $searchGroup) {
+      $setSearchGroups[$group] = $searchGroup->isNegated() ? 'NOT' : $searchGroup->getOperator();
+      if ($setGroupCount < $group) {
+        $setGroupCount = $group;
+      }
+      if (!isset($setQueries[$group])) {
+        $setQueries[$group] = [];
+      }
+      foreach ($searchGroup->getQueries() as $search) {
+        $setQueries[$group][] = $search;
+      }
     }
   }
-}
+
+  // Set up help topics
+  $helpTopics = $this->helpTopics ?? [
+    'advsearch' => 'Help with Advanced Search',
+    'search' => 'Help with Search Operators',
+  ];
 ?>
 
-<?= $this->flashmessages() ?>
-<div class="search-box ">
+<?php /* BDTD: faixa superior igual à da home */ ?>
+<div class="search-box">
   <div class="container">
-    <div class="row">
-      <div class="col-md-7">
-        <div class="box-title">
-          <h1 class="bdtd-title"><?= $this->transEsc("Biblioteca Digital Brasileira de Teses e Dissertações") ?></h1>
-          <h4 class="bdtd-subtitle">Acesso e visibilidade às teses e dissertações brasileiras</h4>
-        </div>
-      </div>
+    <div class="box-title">
+      <h1 class="bdtd-title"><?=$this->transEsc('Biblioteca Digital Brasileira de Teses e Dissertações')?></h1>
+      <p class="bdtd-subtitle h4">Acesso e visibilidade às teses e dissertações brasileiras</p>
     </div>
-    <div class="indicators text-primary">
-      <div class="item">
-        <i class="fa fa-university"></i>
-        <a href="<?= $this->url('datasources-home') ?>" class="data">
-          <span id="institution" class="main-highlight">000</span>
-          <span>Instituições</span>
-        </a>
-      </div>
-      <div class="item"> <i class="fa fa-book"></i>
-        <a href="Search/Results?limit=0&lookfor=%2A%3A%2A&type=AllFields&filter%5B%5D=format%3A%22doctoralThesis%22" class="data">
-          <span id="doctorThesis" class="main-highlight">000</span>
-          <span>Teses</span>
-        </a>
-      </div>
-      <div class="item">
-        <i class="fa fa-file-text" aria-hidden="true"></i>
-        <a href="Search/Results?limit=0&lookfor=%2A%3A%2A&type=AllFields&filter%5B%5D=format%3A%22masterThesis%22" class="data">
-          <span id="masterThesis" class="main-highlight">000</span>
-          <span>Dissertações</span>
-        </a>
-      </div>
-      <div class="item">
-        <i class="fa fa-file" aria-hidden="true"></i>
-        <a href="Search/Results" class="data">
-          <span id="total" class="main-highlight">000</span>
-          <span>Documentos</span>
-        </a>
-      </div>
-    </div>
+    <?=$this->render('search/bdtd-indicators.phtml')?>
   </div>
 </div>
 <div class="container">
-  <div role="search" class="bottom-search-form adv-search-form">
-
-    <div class="search-form form-disabled">
-      <input disabled data-search="" placeholder="Pesquise por teses e dissertações" id="searchForm_lookfor" class="search-input search-query 
-        autocomplete searcher:Solr ac-auto-submit" type="text" name="lookfor" value="" aria-label="Termos de pesquisa">
-
-      <select disabled id="searchForm_type" class="searchForm_type form-control" name="type" data-native-menu="false" aria-label="Search type">
-        <option value="AllFields">Todos os campos</option>
-        <option value="Title">Título</option>
-        <option value="Author">Autor</option>
-        <option value="Subject">Assunto</option>
-      </select>
-
-      <button disabled type="submit" class="btn contained-primary">
-        Buscar</button>
-      <a href="/vufind" class="btn outlined-primary" rel="nofollow">
-        <i class="fa fa-plus-circle" aria-hidden="true"></i> Fechar avançada </a>
-
-      <input type="hidden" name="limit" value="20">
-    </div>
-    <div class="adv-help">
-      <label><?= $this->transEsc("Search Tips") ?>:</label>
-      <a class="help-link" data-lightbox href="<?= $this->url('help-home') ?>?topic=advsearch&amp;_=<?= time() ?>"><?= $this->transEsc("Help with Advanced Search") ?></a>
-      <a class="help-link" data-lightbox href="<?= $this->url('help-home') ?>?topic=search&amp;_=<?= time() ?>"><?= $this->transEsc("Help with Search Operators") ?></a>
-    </div>
-    <form name="searchForm" id="advSearchForm" method="get" action="<?= $this->url($this->options->getSearchAction()) ?>">
-      <?php foreach ($hiddenFilters as $key => $filter) : ?>
-        <?php foreach ($filter as $value) : ?>
-          <input type="hidden" name="hiddenFilters[]" value="<?= $this->escapeHtmlAttr($key) . ':' . $this->escapeHtmlAttr($value) ?>" />
-        <?php endforeach; ?>
+<?=$this->flashmessages()?>
+<div class="adv-help">
+  <a href="<?=$this->url('search-home')?>" class="btn outlined-primary" rel="nofollow"><?=$this->icon('ui-close')?> <?=$this->transEsc('Close advanced search')?></a>
+  <span class="adv-help-label"><?=$this->transEsc('Search Tips')?>:</span>
+  <?php foreach ($helpTopics as $topic => $title): ?>
+    <a class="help-link" data-lightbox href="<?=$this->url('help', ['topic' => $topic])?>"><?=$this->transEsc($title)?></a>
+  <?php endforeach; ?>
+</div>
+<div role="search" class="bottom-search-form adv-search-form">
+  <form name="searchForm" id="advSearchForm" method="get" action="<?=$this->url($this->options->getSearchAction())?>">
+    <?php foreach ($hiddenFilters as $key => $filter): ?>
+      <?php foreach ($filter as $value): ?>
+        <input type="hidden" name="hiddenFilters[]" value="<?=$this->escapeHtmlAttr($key) . ':' . $this->escapeHtmlAttr($value)?>">
       <?php endforeach; ?>
+    <?php endforeach; ?>
+    <div class="<?=$this->layoutClass('mainbody')?>">
       <?php $lastSort = $this->searchMemory()->getLastSort($this->searchClassId); ?>
-      <?php if (!empty($lastSort)) : ?>
-        <input type="hidden" name="sort" value="<?= $this->escapeHtmlAttr($lastSort) ?>" />
+      <?php if (!empty($lastSort)): ?>
+        <input type="hidden" name="sort" value="<?=$this->escapeHtmlAttr($lastSort)?>">
       <?php endif; ?>
       <div class="clearfix">
-        <div id="groupJoin" class="form-inline pull-right flip">
-          <label for="groupJoinOptions"><?= $this->transEsc("search_match") ?>:</label>
-          <select id="groupJoinOptions" name="join" class="form-control">
-            <option value="AND" <?php if ($searchDetails && $searchDetails->getOperator() == 'ALL') : ?> selected<?php endif; ?>><?= $this->transEsc('group_AND') ?></option>
-            <option value="OR" <?php if ($searchDetails && $searchDetails->getOperator() == 'OR') : ?> selected<?php endif; ?>><?= $this->transEsc('group_OR') ?></option>
+        <h2 class="float-start"><?=$this->transEsc('Advanced Search')?></h2>
+        <div id="groupJoin" class="form-inline float-end">
+          <label for="groupJoinOptions"><?=$this->transEsc('search_match')?>:</label>
+          <select id="groupJoinOptions" name="join" class="form-select">
+            <option value="AND"<?php if ($searchDetails && $searchDetails->getOperator() == 'ALL'):?> selected<?php endif; ?>><?= $this->transEsc('group_AND') ?></option>
+            <option value="OR"<?php if ($searchDetails && $searchDetails->getOperator() == 'OR'):?> selected<?php endif; ?>><?= $this->transEsc('group_OR') ?></option>
           </select>
         </div>
       </div>
-      <span id="groupPlaceHolder" class="hidden">
-        <i class="fa fa-plus-circle" aria-hidden="true"></i>
-        <a href="#" role="button"><?= $this->transEsc('add_search_group') ?></a>
-      </span>
+      <a role="button" class="icon-link hidden" id="groupPlaceHolder" href="#">
+        <?=$this->icon('ui-add', 'icon-link__icon') ?>
+        <span class="icon-link__label"><?= $this->transEsc('add_search_group') ?></span>
+      </a>
       <?php /* fallback to a fixed set of search groups/fields if JavaScript is turned off */ ?>
       <div class="no-js">
-        <?php if (!empty($this->formOverride)) : ?>
-          <?= $this->formOverride ?>
-        <?php else : ?>
-          <?php for ($group = 0; $group < 3 || $group <= $setGroupCount; $group++) : ?>
-            <?php if ($group == 0) : ?>
+        <?php if (!empty($this->formOverride)): ?>
+          <?=$this->formOverride ?>
+        <?php else: ?>
+          <?php for ($group = 0; $group < 3 || $group <= $setGroupCount; $group++): ?>
+            <?php if ($group == 0): ?>
               <div id="new_group_template">
-              <?php endif; ?>
-              <div id="group<?= $group ?>" class="adv-group-form">
-                <div class="adv-group-match-form">
-                  <label class="search_bool"><?= $this->transEsc("search_match") ?>:&nbsp;</label>
-                  <select name="bool<?= $group ?>[]" id="search_bool<?= $group ?>" class="form-control">
-                    <option value="AND" <?php if (isset($setSearchGroups[$group]) && 'AND' == $setSearchGroups[$group]) : ?> selected<?php endif; ?>><?= $this->transEsc("search_AND") ?></option>
-                    <option value="OR" <?php if (isset($setSearchGroups[$group]) && 'OR' == $setSearchGroups[$group]) : ?> selected<?php endif; ?>><?= $this->transEsc("search_OR") ?></option>
-                    <option value="NOT" <?php if (isset($setSearchGroups[$group]) && 'NOT' == $setSearchGroups[$group]) : ?> selected<?php endif; ?>><?= $this->transEsc("search_NOT") ?></option>
-                  </select>
-                </div>
-                <div class="adv-group-terms-form">
-                  <label class="adv-group-label" for="search_lookfor<?= $group ?>_0"><?= $this->transEsc("adv_search_label") ?>:</label>
-                  <?php for ($search = 0; $search < 3 || (isset($setQueries[$group]) && $search < count($setQueries[$group])); $search++) : ?>
-                    <?php if ($group == 0 && $search == 0) : ?>
-                      <div id="new_search_template">
-                      <?php endif; ?>
-                      <div id="search<?= $group . '_' . $search ?>" class="adv-search">
-                        <div class="adv-search-inputs">
-                          <input name="lookfor<?= $group ?>[]" id="search_lookfor<?= $group . '_' . $search ?>" class="form-control" type="text" <?php if (isset($setQueries[$group][$search])) : ?> value="<?= $this->escapeHtml($setQueries[$group][$search]->getString()) ?>" <?php endif; ?> aria-label="<?= $this->transEscAttr("search_terms") ?>">
-                          <select class="form-control" name="type<?= $group ?>[]" aria-label="<?= $this->transEscAttr("Search type") ?>">
-                            <?php foreach ($this->options->getAdvancedHandlers() as $searchVal => $searchDesc) : ?>
-                              <option value="<?= $this->escapeHtml($searchVal) ?>" <?php if (isset($setQueries[$group][$search]) && $searchVal == $setQueries[$group][$search]->getHandler()) : ?> selected<?php endif; ?>><?= $this->transEsc($searchDesc) ?></option>
-                            <?php endforeach; ?>
-                          </select>
-                        </div>
-                        <a href="#" class="adv-term-remove hidden">
-                          <i class="fa fa-times" aria-hidden="true"></i>
-                          <span class="sr-only"><?= $this->transEsc('remove') ?></span>
-                        </a>
-                      </div>
-                      <?php if ($group == 0 && $search == 0) : ?>
-                      </div>
-                      <div class="adv-fieds">
-                        <i class="fa fa-plus-circle search_place_holder hidden" aria-hidden="true"></i>
-                        <a href="#" class="add_search_link hidden" role="button"><?= $this->transEsc("add_search") ?></a>
-                      </div>
-                    <?php endif; ?>
-                  <?php endfor; ?>
-                </div>
-
+            <?php endif; ?>
+            <div id="group<?=$group ?>" class="adv-group adv-group-form">
+              <?php /* BDTD: seletor de combinação no topo do grupo */ ?>
+              <div class="adv-group-match adv-group-match-form">
+                <label class="search_bool" for="search_bool<?=$group ?>"><?=$this->transEsc('search_match')?>:&nbsp;</label>
+                <select name="bool<?=$group ?>[]" id="search_bool<?=$group ?>" class="form-select">
+                  <option value="AND"<?php if (isset($setSearchGroups[$group]) && 'AND' == $setSearchGroups[$group]):?> selected<?php endif; ?>><?=$this->transEsc('search_AND')?></option>
+                  <option value="OR"<?php if (isset($setSearchGroups[$group]) && 'OR' == $setSearchGroups[$group]):?> selected<?php endif; ?>><?=$this->transEsc('search_OR')?></option>
+                  <option value="NOT"<?php if (isset($setSearchGroups[$group]) && 'NOT' == $setSearchGroups[$group]):?> selected<?php endif; ?>><?=$this->transEsc('search_NOT')?></option>
+                </select>
               </div>
-              <?php if ($group == 0) : ?>
+              <div class="adv-group-terms adv-group-terms-form">
+                <label class="adv-group-label"><?=$this->transEsc('adv_search_label')?>:</label>
+                <?php for ($search = 0; $search < 3 || (isset($setQueries[$group]) && $search < count($setQueries[$group])); $search++): ?>
+                  <?php if ($group == 0 && $search == 0): ?>
+                    <div id="new_search_template">
+                  <?php endif; ?>
+                  <div id="search<?=$group . '_' . $search ?>" class="adv-search">
+                    <input name="lookfor<?=$group ?>[]" id="search_lookfor<?=$group . '_' . $search ?>" class="adv-term-input form-control" type="text"<?php if (isset($setQueries[$group][$search])): ?> value="<?=$this->escapeHtmlAttr($setQueries[$group][$search]->getString())?>"<?php endif; ?> aria-label="<?=$this->transEscAttr('search_terms')?>">
+                    <select class="adv-term-type form-select" name="type<?=$group ?>[]" aria-label="<?=$this->transEscAttr('Search type')?>">
+                      <?php foreach ($this->options->getAdvancedHandlers() as $searchVal => $searchDesc): ?>
+                        <option value="<?=$this->escapeHtmlAttr($searchVal)?>"<?php if (isset($setQueries[$group][$search]) && $searchVal == $setQueries[$group][$search]->getHandler()): ?> selected<?php endif; ?>><?=$this->transEsc($searchDesc)?></option>
+                      <?php endforeach; ?>
+                    </select>
+                    <a href="#" class="adv-term-remove hidden">
+                      <?=$this->icon('ui-remove') ?>
+                      <span class="visually-hidden"><?=$this->transEsc('remove') ?></span>
+                    </a>
+                  </div>
+                  <?php if ($group == 0 && $search == 0): ?>
+                    </div>
+                    <div class="float-left">
+                      <span class="search_place_holder hidden"></span>
+                      <a href="#" class="add_search_link icon-link hidden" role="button">
+                        <?=$this->icon('ui-add', 'icon-link__icon') ?>
+                        <span class="icon-link__label"><?=$this->transEsc('add_search')?></span>
+                      </a>
+                    </div>
+                  <?php endif; ?>
+                <?php endfor; ?>
+              </div>
+              <a href="#" class="adv-group-close icon-link hidden" role="button">
+                <?=$this->icon('ui-remove', 'icon-link__icon') ?>
+                <span class="icon-link__label"><?=$this->transEsc('del_search') ?></span>
+              </a>
+            </div>
+            <?php if ($group == 0): ?>
               </div>
             <?php endif; ?>
           <?php endfor; ?>
         <?php endif; ?>
       </div>
       <div class="adv-submit">
-        <input class="btn btn-default" type="button" value="<?= $this->transEsc('Clear') ?>">
-        <input class="btn contained-primary" type="submit" value="<?= $this->transEsc('Find') ?>">
+        <input class="clear-btn btn btn-default" type="button" value="<?= $this->transEscAttr('Clear')?>">
+        <input class="btn contained-primary" type="submit" value="<?= $this->transEscAttr('Find')?>">
       </div>
-      <?php if (isset($this->extraAdvancedControls)) : ?>
+      <?php if (isset($this->extraAdvancedControls)): ?>
         <div class="clearfix">
-          <?= $this->extraAdvancedControls ?>
+          <?=$this->extraAdvancedControls ?>
         </div>
         <div class="adv-submit">
-          <input class="btn btn-default" type="button" value="<?= $this->transEsc('Clear') ?>">
-          <input class="btn contained-primary" type="submit" value="<?= $this->transEsc('Find') ?>">
+          <input class="clear-btn btn btn-default" type="button" value="<?= $this->transEscAttr('Clear')?>">
+          <input class="btn contained-primary" type="submit" value="<?= $this->transEscAttr('Find')?>">
         </div>
       <?php endif; ?>
-    </form>
-  </div>
+    </div>
 
-  <div class="search-info">
-    <a class="item" href="<?= $this->url('participate-home') ?>">
-      <div class="text-primary flex-row-spaced-between">
-        <h4 class="main-highlight">
-          Participe
-        </h4>
-        <i class="fa fa-comments" aria-hidden="true"></i>
-      </div>
-      <p>Faça parte da BDTD e contribua com a disseminação das teses e dissertações produzidas por pesquisadores brasileiros.</p>
-    </a>
-    <a class="item" href="<?= $this->url('technology-home') ?>">
-      <div class="text-primary flex-row-spaced-between">
-        <h4 class="main-highlight">
-          Tecnologia
-        </h4>
-        <i class="fa fa-laptop" aria-hidden="true"></i>
-      </div>
-      <p>Em concordância com os preceitos da Ciência Aberta, toda a tecnologia utilizada para o funcionamento da BDTD são de código livre.</p>
-    </a>
-    <a class="item" href="<?= $this->url('indicators-home') ?>">
-      <div class="text-primary flex-row-spaced-between">
-        <h4 class="main-highlight">
-          Indicadores
-        </h4>
-        <i class="fa fa-line-chart" aria-hidden="true"></i>
-      </div>
-      <p>Acesse alguns indicadores quantitativos relativos às teses e dissertações no Brasil.</p>
-    </a>
-  </div>
+    <div class="<?=$this->layoutClass('sidebar')?>">
+      <?php if ($hasDefaultsApplied): ?>
+        <input type="hidden" name="dfApplied" value="1">
+      <?php endif ?>
+      <?php if ($checkboxFilters || $searchFilters): ?>
+        <h2><?=$this->transEsc('adv_search_filters')?></h2>
+        <div class="facet-group">
+          <label class="checkbox">
+            <input type="checkbox" checked="checked" class="checkbox-select-all">
+            <?=$this->transEsc('adv_search_select_all')?>
+          </label>
+        </div>
+
+        <?php if ($checkboxFilters): ?>
+          <div class="checkbox-filters">
+            <?php foreach ($checkboxFilters as $data): ?>
+              <div class="checkbox-filter">
+                <label class="facet checkbox"><input class="checkbox-select-item" type="checkbox" checked="checked" name="filter[]" value="<?=$this->escapeHtmlAttr($data['filter'])?>"> <?=$this->transEsc($data['desc'])?></label>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+
+        <?php foreach ($searchFilters as $field => $data): ?>
+          <div class="facet-group">
+            <div class="title"><?=$this->transEsc($field)?></div>
+            <?php foreach ($data as $i => $value): ?>
+              <?php $operator = $value['operator'] ?? 'AND'; ?>
+              <label class="facet checkbox">
+                <input class="checkbox-select-item" type="checkbox" checked="checked" name="filter[]" value="<?=$this->escapeHtmlAttr($this->operatorToFieldPrefix($operator) . $value['field'] . ':"' . $value['value'] . '"')?>">
+                <?php if ($operator === 'NOT'): ?>
+                  <?=$this->transEsc('NOT')?>
+                <?php elseif ($operator === 'OR' && $i > 0): ?>
+                  <?=$this->transEsc('OR')?>
+                <?php endif; ?>
+                <?=$this->escapeHtml($value['displayText'])?>
+              </label>
+            <?php endforeach; ?>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+      <?php if (false && $helpTopics): /* BDTD: ajuda exibida no topo */ ?>
+        <h2><?=$this->transEsc('Search Tips')?></h2>
+        <?php // Data-title attribute is for analytics use.  Do not remove. ?>
+        <ul class="facet-group" data-title="<?=$this->escapeHtmlAttr('Search Tips') ?>">
+          <?php foreach ($helpTopics as $topic => $title): ?>
+            <li class="facet">
+              <a class="help-link" data-lightbox href="<?=$this->url('help', ['topic' => $topic])?>"><?=$this->transEsc($title)?></a>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
+    </div>
+  </form>
 </div>
-<!-- importa a seção de informações abaixo da busca na página inicial -->
+<?php /* BDTD: atalhos e bloco institucional, como na home */ ?>
+<?=$this->render('search/bdtd-shortcuts.phtml')?>
+</div>
 <div class="container">
-  <?= $this->render('content-home.phtml') ?>
+  <?=$this->render('content-home.phtml')?>
 </div>
 <?php
 $script = <<<JS
-$('#groupPlaceHolder a').click(function(e) {
-  addGroup();
-  return false;
-})
-JS;
+    $('#groupPlaceHolder').click(function(e) {
+      addGroup(null, null, null, true);
+      return false;
+    })
+    JS;
 ?>
-<?= $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $script, 'SET');
+<?=$this->assetManager()->outputInlineScriptString($script);

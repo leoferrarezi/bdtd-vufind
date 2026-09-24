@@ -5,8 +5,8 @@ $titleName = $source;
 <?php $this->headTitle($titleName); ?>
 <?php $this->layout()->searchbox = false; ?>
 <?php $this->layout()->layoutFull = false; ?>
-<?php $this->headLink()->appendStylesheet('loader.css'); ?>
-<?php $this->headScript()->appendFile("load-network.js"); ?>
+<?php $this->assetManager()->appendStyleLink('loader.css'); ?>
+<?php $this->assetManager()->appendScriptLink("load-network.js"); ?>
 
 <div class="logo-img-center">
   <a href="<?= $this->url('home') ?>"><img src="<?= $this->imageLink('oasisbr.png'); ?>" alt="Logo do OasisBR" /></a>

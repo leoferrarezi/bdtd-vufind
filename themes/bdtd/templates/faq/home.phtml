@@ -1,6 +1,6 @@
 <?php $this->headTitle($this->translate('Perguntas Frequentes')); ?>
 <?php $this->layout()->searchbox = false; ?>
-<?php $this->layout()->breadcrumbs .= '<li class="active">' . '' . '</li>'; ?>
+<?php $this->breadcrumbs()->add($this->translate('Perguntas Frequentes'), active: true); ?>
 
 <div class="fulltext">
   <h1 class="text-primary">FAQ</h1>
@@ -12,7 +12,7 @@
       <div class="col-md-12">
         <h3 class="info-usuarios">Informações voltadas para os usuários/estudantes/pesquisadores:</h3>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#1" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#1" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('O que é a Biblioteca Digital Brasileira de Teses e Dissertações (BDTD)?'); ?></a>
           </h3>
           <div class="collapse" id="1">
@@ -25,7 +25,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#2" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#2" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('O que devo fazer para que minha tese e/ou dissertação seja coletada pela BDTD?'); ?></a>
           </h3>
           <div class="collapse" id="2">
@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#3" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#3" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Gostaria de incluir minha tese ou dissertação na BDTD, é possível realizar o autodepósito?'); ?></a>
           </h3>
           <div class="collapse" id="3">
@@ -49,7 +49,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#4" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#4" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Não encontrei minha tese e/ou dissertações na BDTD, como devo proceder?'); ?></a>
           </h3>
           <div class="collapse" id="4">
@@ -59,7 +59,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#5" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#5" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Como realizar busca (avançada) na BDTD?'); ?></a>
           </h3>
           <div class="collapse" id="5">
@@ -78,7 +78,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#6" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#6" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Não consigo acessar o texto completo da tese ou dissertação, como devo proceder?'); ?></a>
           </h3>
           <div class="collapse" id="6">
@@ -86,7 +86,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#7" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#7" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Como funciona o processo de exportação?'); ?></a>
           </h3>
           <div class="collapse" id="7">
@@ -94,7 +94,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#8" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#8" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Observei informações incorretas ou incompletas na BDTD, como devo proceder?'); ?></a>
           </h3>
           <div class="collapse" id="8">
@@ -105,7 +105,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#9" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#9" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Posso baixar o arquivo das teses e dissertações diretamente da BDTD? '); ?></a>
           </h3>
           <div class="collapse" id="9">
@@ -113,7 +113,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#10" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#10" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Por que na busca facetada aparecem autores como “não informado“,  “-“ ou  “x“?'); ?></a>
           </h3>
           <div class="collapse" id="10">
@@ -125,7 +125,7 @@
         </div>
         <h3 class="info-gestores">Informações voltadas para os gestores:</h3>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#11" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#11" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Quais os procedimentos para que a minha instituição passe a integrar a BDTD?'); ?></a>
           </h3>
           <div class="collapse" id="11">
@@ -142,7 +142,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#12" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#12" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Quais as vantagens da minha instituição integrar a BDTD?'); ?></a>
           </h3>
           <div class="collapse" id="12">
@@ -152,7 +152,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#13" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#13" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('A coleta de dados da minha instituição não está atualizada, o que fazer?'); ?></a>
           </h3>
           <div class="collapse" id="13">
@@ -165,7 +165,7 @@
           </div>
         </div>
         <div class="card">
-          <h3> <a data-toggle="collapse" class="btn-collapse collapsed" href="#14" aria-expanded="false" aria-controls="footwear">
+          <h3> <a data-bs-toggle="collapse" class="btn-collapse collapsed" href="#14" aria-expanded="false" aria-controls="footwear">
               <?= $this->transEsc('Quais os metadados que mais precisam de atenção, na descrição das teses e dissertações?'); ?></a>
           </h3>
           <div class="collapse" id="14">

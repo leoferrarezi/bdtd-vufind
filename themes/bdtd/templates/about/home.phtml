@@ -1,6 +1,6 @@
 <?php $this->headTitle($this->translate('About')); ?>
 <?php $this->layout()->searchbox = false; ?>
-<?php $this->layout()->breadcrumbs .= '<li class="active">' . '' . '</li>'; ?>
+<?php $this->breadcrumbs()->add($this->translate('About'), active: true); ?>
 
 <div class="fulltext">
   <h1 class="text-primary">BDTD</h1>

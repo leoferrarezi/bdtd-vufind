@@ -1,0 +1,19 @@
+<?php
+  // BDTD: atalhos Participe / Tecnologia / Indicadores (home e busca avançada).
+  $shortcuts = [
+    ['participate-home', 'Participe', 'bdtd-participate', 'Faça parte da BDTD e contribua com a disseminação das teses e dissertações produzidas por pesquisadores brasileiros.'],
+    ['technology-home', 'Tecnologia', 'bdtd-technology', 'Em concordância com os preceitos da Ciência Aberta, toda a tecnologia utilizada para o funcionamento da BDTD são de código livre.'],
+    ['indicators-home', 'Indicadores', 'bdtd-indicators', 'Acesse alguns indicadores quantitativos relativos às teses e dissertações no Brasil.'],
+  ];
+?>
+<div class="search-info bottom-search-form">
+  <?php foreach ($shortcuts as [$route, $title, $icon, $text]): ?>
+    <a class="item" href="<?=$this->url($route)?>">
+      <div class="text-primary flex-row-spaced-between">
+        <h2 class="main-highlight h4"><?=$this->escapeHtml($title)?></h2>
+        <?=$this->icon($icon)?>
+      </div>
+      <p><?=$this->escapeHtml($text)?></p>
+    </a>
+  <?php endforeach; ?>
+</div>

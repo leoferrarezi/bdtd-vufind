@@ -116,10 +116,11 @@ class Bdtd extends \VuFind\RecordDataFormatter\Specs\DefaultRecord
         $spec->setTemplateLine('Access type', 'getAccessType', 'access-level.phtml');
         $spec->setTemplateLine('dARK ID', 'getDarkID', 'dark-id.phtml');
         $spec->setLine('Language', 'getLanguages', null, $this->getLanguageLineSettings());
-        $spec->setTemplateLine('Institution', 'getRootPublishers', 'data-publicationDetails.phtml');
-        $spec->setTemplateLine('Program', 'getProgramPublishers', 'data-publicationDetails.phtml');
-        $spec->setTemplateLine('Department', 'getDepartmentPublishers', 'data-publicationDetails.phtml');
-        $spec->setTemplateLine('Country', 'getCountryPublishers', 'data-publicationDetails.phtml');
+        // Texto simples, sem link de busca (como no legado; ver data-bdtd-plain.phtml no tema)
+        $spec->setTemplateLine('Institution', 'getRootPublishers', 'data-bdtd-plain.phtml');
+        $spec->setTemplateLine('Program', 'getProgramPublishers', 'data-bdtd-plain.phtml');
+        $spec->setTemplateLine('Department', 'getDepartmentPublishers', 'data-bdtd-plain.phtml');
+        $spec->setTemplateLine('Country', 'getCountryPublishers', 'data-bdtd-plain.phtml');
         $spec->setLine(
             'Edition',
             'getEdition',

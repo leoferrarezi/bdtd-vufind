@@ -34,29 +34,7 @@
 <?=$this->notices()->renderNoticesForPosition('default')?>
 
 <div class="container">
-  <div class="search-info bottom-search-form">
-    <a class="item" href="<?=$this->url('participate-home')?>">
-      <div class="text-primary flex-row-spaced-between">
-        <h2 class="main-highlight h4">Participe</h2>
-        <?=$this->icon('bdtd-participate')?>
-      </div>
-      <p>Faça parte da BDTD e contribua com a disseminação das teses e dissertações produzidas por pesquisadores brasileiros.</p>
-    </a>
-    <a class="item" href="<?=$this->url('technology-home')?>">
-      <div class="text-primary flex-row-spaced-between">
-        <h2 class="main-highlight h4">Tecnologia</h2>
-        <?=$this->icon('bdtd-technology')?>
-      </div>
-      <p>Em concordância com os preceitos da Ciência Aberta, toda a tecnologia utilizada para o funcionamento da BDTD são de código livre.</p>
-    </a>
-    <a class="item" href="<?=$this->url('indicators-home')?>">
-      <div class="text-primary flex-row-spaced-between">
-        <h2 class="main-highlight h4">Indicadores</h2>
-        <?=$this->icon('bdtd-indicators')?>
-      </div>
-      <p>Acesse alguns indicadores quantitativos relativos às teses e dissertações no Brasil.</p>
-    </a>
-  </div>
+  <?=$this->render('search/bdtd-shortcuts.phtml')?>
 </div>
 
 <div class="container">

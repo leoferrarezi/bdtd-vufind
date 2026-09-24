@@ -1,6 +1,6 @@
 <?php $this->headTitle('TEDE'); ?>
 <?php $this->layout()->searchbox = false; ?>
-<?php $this->layout()->breadcrumbs .= '<li class="active">' . '' . '</li>'; ?>
+<?php $this->breadcrumbs()->add('TEDE', active: true); ?>
 
 <div class="fulltext">
     <h2 class="text-primary">DIRETRIZES</h2>
@@ -16,7 +16,7 @@
     </p>
 
     <a target="_blank" href="../Padrao_de_Metadados_da_BDTD_MTD3-BR_v_2017.pdf">
-        <span class="glyphicon glyphicon-download fa-2x"> </span>
+        <?=$this->icon('bdtd-download', 'fa-2x')?>
         Padrão Brasileiro de Metadados para Descrição de Teses e Dissertações (MTD3-BR) v.3
     </a>
 
