@@ -37,7 +37,7 @@ _A preencher._
 ## 3. VPS (Ubuntu 24.04)
 
 Acesso: `ssh -i ~/.ssh/id_ed25519_bdtd_vps -p 10020 leoferrarezi@103.14.27.53`
-(NAT: 10020 → 22, 10080 → 80). IP interno da VPS: 10.10.10.7. Hostname `bdtd`.
+(NAT: 10020 → 22, 18080 → 80). IP interno da VPS: 10.10.10.7. Hostname `bdtd`.
 Recursos: 4 vCPU, 15 GB RAM, disco 80 GB.
 
 ### 3.1 Acesso (feito em 2026-09-24)
@@ -90,9 +90,13 @@ Logs: `/var/log/bdtd/` (`vufind.log`, `apache-error.log`, `apache-access.log`, `
 
 ### 3.5 Acesso público
 
-`http://103.14.27.53:10080/vufind/` depende do NAT 10080 → 10.10.10.7:80 no roteador/provedor
-(em 2026-09-24 ainda recusava conexão; a porta 80 da VPS está aberta no ufw).
-Enquanto isso, acesso por túnel SSH:
+`http://103.14.27.53:18080/vufind/` — NAT 18080 → 10.10.10.7:80 no roteador/provedor.
+
+A porta 10080 foi usada primeiro, mas **navegadores bloqueiam a 10080** (lista de "unsafe ports",
+erro ERR_UNSAFE_PORT); por isso a troca para 18080. Ao mudar a porta, atualizar `url` em
+`local/config/vufind/config.ini`.
+
+Alternativa sem NAT (túnel SSH):
 ```bash
 ssh -i ~/.ssh/id_ed25519_bdtd_vps -p 10020 -L 8080:localhost:80 leoferrarezi@103.14.27.53
 # navegador: http://localhost:8080/vufind/

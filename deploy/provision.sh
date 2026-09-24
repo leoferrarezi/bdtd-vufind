@@ -22,7 +22,7 @@ LOG_DIR="${LOG_DIR:-/var/log/bdtd}"
 SECRETS_DIR="${SECRETS_DIR:-/etc/bdtd/secrets}"
 DB_NAME="${DB_NAME:-vufind}"
 DB_USER="${DB_USER:-vufind}"
-PUBLIC_URL="${PUBLIC_URL:-http://103.14.27.53:10080}"
+PUBLIC_URL="${PUBLIC_URL:-http://103.14.27.53:18080}"
 TIMEZONE="${TIMEZONE:-America/Sao_Paulo}"
 SWAP_SIZE="${SWAP_SIZE:-4G}"
 LOCAL_MODULES="${LOCAL_MODULES-Bdtd}"             # vazio = VuFind puro (antes do módulo estar portado)

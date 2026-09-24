@@ -20,7 +20,7 @@ Formato: data — decisão — motivo.
    comandos (`exec()` com parâmetros do usuário) e SSRF (`/bulkexport/download?url=`).
 7. **Integrações com a oasisbr-api ficam para depois**: disponibilidade/dados da API ainda não
    confirmados. O código é portado com a URL configurável e degradação silenciosa se a API falhar.
-8. **Homologação sem domínio:** acesso por `http://103.14.27.53:10080/` (NAT 10080 → 80). Sem HTTPS
+8. **Homologação sem domínio:** acesso por `http://103.14.27.53:18080/` (NAT 18080 → 80). Sem HTTPS
    por enquanto (Let's Encrypt exige domínio). Site com `noindex` até o go-live.
 9. **Solr reindexado, não copiado:** índice Lucene 7 não abre no Solr 9. Os campos BDTD
    (`dc.*.fl_str_mv`, `instname_str`, …) são cobertos pelos dynamicFields do schema padrão.
