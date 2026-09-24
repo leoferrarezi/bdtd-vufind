@@ -1,1 +1,4 @@
 *.bat eol=crlf
+# BDTD: scripts executados no Linux precisam de LF mesmo com core.autocrlf=true no Windows
+*.sh text eol=lf
+deploy/** text eol=lf

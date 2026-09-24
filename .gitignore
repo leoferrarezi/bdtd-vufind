@@ -29,5 +29,4 @@ public/swagger-ui
 tests/phpcs.cache.json
 local/DirLocations.ini
 local/config/vufind.bak
-local/config/vufind/*
-!local/config/vufind/README.txt
+# BDTD: configs locais SÃO versionadas (segredos ficam fora, via *_file em /etc/bdtd/secrets)
