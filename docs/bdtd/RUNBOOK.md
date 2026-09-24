@@ -32,7 +32,28 @@ git diff v7.1.1 legacy-7.1.1 -- config/vufind/facets.ini
 
 ## 2. Ambiente local (Windows + Laragon)
 
-_A preencher._
+Até aqui o desenvolvimento foi feito editando no Windows e publicando na VPS de homologação
+(`deploy.sh`), sem ambiente local rodando. Para montar um local, ver pendências no fim.
+
+## 2.1 Tema bdtd — como foi portado (e como refazer)
+
+1. `themes/bdtd/theme.config.php`: `extends => bootstrap5`; CSS sem `priority` (senão sai
+   antes do `compiled.css` e é anulado); ícones `bdtd-*`; helper Matomo.
+2. Templates reescritos à mão: `layout/layout.phtml`, `layout/help.phtml`, `header.phtml`,
+   `footer.phtml`, `search/home.phtml`, `content-home.phtml`, `search/results.phtml` e os
+   parciais `search/bdtd-*.phtml`, `RecordDriver/DefaultRecord/data-bdtd-plain.phtml`.
+3. Templates gerados (original do VuFind + regras):
+   ```bash
+   python deploy/tools/tema/patchtpl.py deploy/tools/tema/regras/*.py
+   git status themes   # sem diferenças = regras e templates em sincronia
+   ```
+4. Páginas institucionais: conversão BS3→BS5 por substituição (`headScript`→`assetManager`,
+   `layout()->breadcrumbs .=`→`breadcrumbs()->add()`, `panel`→`card`, `data-toggle`→`data-bs-toggle`,
+   glyphicons→`$this->icon('bdtd-*')`).
+5. Traduções: `local/languages/{pt-br,en,es}.ini` = chaves que o legado mudou/criou em relação
+   ao 7.1.1 original e que o VuFind 11 não traduz igual (extraídas por script; ver commit).
+6. Validação: comparar lado a lado com https://bdtd.ibict.br/vufind/ (home, resultados,
+   registro, busca avançada, páginas institucionais), desktop e celular, e console sem erros.
 
 ## 3. VPS (Ubuntu 24.04)
 
@@ -79,6 +100,17 @@ escutando só em 127.0.0.1; ufw liberando 22/80/443.
 Problema encontrado e corrigido: erro 500 `Undefined constant PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT`.
 Causa: `[Database]` do config.ini local era mesclada com a do pai, e o `database = mysql://...` do
 pai tem prioridade sobre `database_driver` etc. Solução: `override_full_sections = "Languages,Database"`.
+
+### 3.3.1 Dados (amostra) no Solr
+
+```bash
+python3 /opt/bdtd/deploy/tools/import_from_api.py --max 5000     # amostra (~1.000 únicos)
+curl -s 'http://localhost:8983/solr/biblio/select?q=*:*&rows=0'  # conferir numFound
+```
+O importador descarta campos que o schema local não aceita e os destinos de `copyField`
+(`spellingShingle`, `title_fullStr`, `title_full_unstemmed`, `author_facet`, `_version_`),
+que o próprio Solr regenera. Carga completa: `--by-facet instname_str` (precisa de
+particionamento extra por ano para instituições com mais de 1.000 registros).
 
 ### 3.4 Deploy de rotina
 

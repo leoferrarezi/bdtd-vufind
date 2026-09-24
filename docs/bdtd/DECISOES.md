@@ -24,3 +24,21 @@ Formato: data — decisão — motivo.
    por enquanto (Let's Encrypt exige domínio). Site com `noindex` até o go-live.
 9. **Solr reindexado, não copiado:** índice Lucene 7 não abre no Solr 9. Os campos BDTD
    (`dc.*.fl_str_mv`, `instname_str`, …) são cobertos pelos dynamicFields do schema padrão.
+10. **Porta pública 18080** (NAT 18080 → 80). A 10080 foi descartada: navegadores a bloqueiam
+    ("unsafe port", ERR_UNSAFE_PORT).
+11. **Dados da homologação vêm da API pública da produção** (`/vufind/api/v1/search` com
+    `field[]=rawData`), porque o Solr informado (`testesolr7.ibict.br`) responde 404. Importador:
+    `deploy/tools/import_from_api.py`. A API de produção só pagina até ~1.000 resultados por
+    consulta; a carga completa precisa particionar (instituição × ano). Carga completa só com
+    aval do responsável (gera ~11.500 requisições na produção).
+12. **Tema: CSS legado preservado, correções à parte.** `style.css`/`custom.css` ficam iguais ao
+    legado; tudo o que a migração precisou mudar está em `bdtd-bs5.css`, comentado.
+13. **Templates "original + mudanças" são gerados** por `deploy/tools/tema/patchtpl.py` a partir
+    de regras. Ao atualizar o VuFind: `VUFIND_TAG=vX.Y.Z python deploy/tools/tema/patchtpl.py
+    deploy/tools/tema/regras/*.py` e revisar o diff.
+14. **Recursos de terceiros desligados na homologação** (`[BdtdTheme]`, `[GoogleAnalytics]`,
+    `[Matomo]`): não contaminar estatísticas da produção nem carregar scripts externos.
+15. **Seletor de idioma visível no menu** (na produção atual ele não aparece). Há traduções
+    pt-br/en/es. Reverter é uma linha no `header.phtml` se o IBICT preferir.
+16. **oasisbr-api fora do ar** (503 em 2026-09-24). Front-end e fallback de registros degradam
+    sem erro; reativar = preencher `oasisbr_api` em `local/config/vufind/Apis.ini`.
