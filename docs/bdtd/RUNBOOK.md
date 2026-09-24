@@ -73,4 +73,27 @@ sudo env LOCAL_MODULES=Bdtd bash /tmp/provision.sh > /tmp/provision.log 2>&1
 ```
 O script é idempotente: para aplicar mudanças de `deploy/` depois, basta rodá-lo de novo.
 
-_Resultado e ajustes: a preencher._
+Resultado (2026-09-24): Apache, PHP-FPM 8.3, PostgreSQL 16 e Solr 9.8.1 ativos; Solr e Postgres
+escutando só em 127.0.0.1; ufw liberando 22/80/443.
+
+Problema encontrado e corrigido: erro 500 `Undefined constant PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT`.
+Causa: `[Database]` do config.ini local era mesclada com a do pai, e o `database = mysql://...` do
+pai tem prioridade sobre `database_driver` etc. Solução: `override_full_sections = "Languages,Database"`.
+
+### 3.4 Deploy de rotina
+
+```bash
+sudo bash /opt/bdtd/deploy/deploy.sh             # último commit da branch vufind11
+sudo bash /opt/bdtd/deploy/deploy.sh <tag>       # versão específica / rollback
+```
+Logs: `/var/log/bdtd/` (`vufind.log`, `apache-error.log`, `apache-access.log`, `cron.log`).
+
+### 3.5 Acesso público
+
+`http://103.14.27.53:10080/vufind/` depende do NAT 10080 → 10.10.10.7:80 no roteador/provedor
+(em 2026-09-24 ainda recusava conexão; a porta 80 da VPS está aberta no ufw).
+Enquanto isso, acesso por túnel SSH:
+```bash
+ssh -i ~/.ssh/id_ed25519_bdtd_vps -p 10020 -L 8080:localhost:80 leoferrarezi@103.14.27.53
+# navegador: http://localhost:8080/vufind/
+```
