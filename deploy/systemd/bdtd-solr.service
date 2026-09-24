@@ -1,0 +1,22 @@
+# Solr do BDTD (VuFind 11 / Solr 9). Usuário, VUFIND_HOME e heap vêm do drop-in
+# bdtd-solr.service.d/override.conf gerado por deploy/provision.sh.
+[Unit]
+Description=Solr do BDTD (VuFind)
+After=network.target
+
+[Service]
+Type=forking
+# Solr 9 escuta só em localhost por padrão; explícito para não depender disso
+Environment=SOLR_JETTY_HOST=127.0.0.1
+Environment=SOLR_PORT=8983
+ExecStart=/bin/bash ${VUFIND_HOME}/solr.sh start
+ExecStop=/bin/bash ${VUFIND_HOME}/solr.sh stop
+LimitNOFILE=65000
+LimitNPROC=65000
+TimeoutStartSec=180
+TimeoutStopSec=120
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

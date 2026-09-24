@@ -1,0 +1,13 @@
+# Rotinas do BDTD. Instalado em /etc/cron.d/bdtd por deploy/provision.sh.
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+VUFIND_HOME=@APP_DIR@
+VUFIND_LOCAL_DIR=@APP_DIR@/local
+VUFIND_CACHE_DIR=/var/cache/bdtd/cli
+
+# Expira sessões e buscas antigas (substitui o scripts/delete_files.sh do legado)
+15 3 * * * www-data php @APP_DIR@/public/index.php util/expire_sessions 1 >> @LOG_DIR@/cron.log 2>&1
+30 3 * * * www-data php @APP_DIR@/public/index.php util/expire_searches 2 >> @LOG_DIR@/cron.log 2>&1
+
+# Backup diário do banco (7 dias de retenção)
+0 2 * * * postgres pg_dump -Fc vufind > /var/backups/bdtd/db-$(date +\%u).dump 2>> @LOG_DIR@/cron.log
