@@ -18,6 +18,7 @@ import json
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -34,6 +35,13 @@ def http_json(url, data=None, timeout=120):
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            if 400 <= exc.code < 500:  # erro do pedido: não adianta repetir
+                body = exc.read().decode("utf-8", "replace")
+                raise RuntimeError(f"HTTP {exc.code} em {url.split('?')[0]}: {body[:1500]}") from exc
+            if attempt == 4:
+                raise
+            time.sleep(5 * (attempt + 1))
         except Exception as exc:  # noqa: BLE001 - retry em qualquer falha de rede
             if attempt == 4:
                 raise
@@ -48,11 +56,18 @@ class SchemaFilter:
     def __init__(self, solr):
         fields = http_json(f"{solr}/schema/fields?wt=json")["fields"]
         dyn = http_json(f"{solr}/schema/dynamicfields?wt=json")["dynamicFields"]
-        self.fixed = {f["name"] for f in fields} - {"_version_"}
+        # destinos de copyField são preenchidos pelo próprio Solr: reenviar duplica valores
+        copy_dests = {c["dest"] for c in http_json(f"{solr}/schema/copyfields?wt=json")["copyFields"]}
+        self.fixed = {f["name"] for f in fields} - {"_version_"} - copy_dests
+        self.copy_dest_patterns = [
+            re.compile("^" + re.escape(d).replace(r"\*", ".*") + "$") for d in copy_dests if "*" in d
+        ]
         self.patterns = [re.compile("^" + re.escape(d["name"]).replace(r"\*", ".*") + "$") for d in dyn]
         self.dropped = {}
 
     def accepts(self, name):
+        if any(p.match(name) for p in self.copy_dest_patterns):
+            return False
         return name in self.fixed or any(p.match(name) for p in self.patterns)
 
     def clean(self, doc):
