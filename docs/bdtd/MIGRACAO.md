@@ -9,20 +9,20 @@ Status: ⏳ pendente · 🔧 em andamento · ✅ feito · ⏸ adiado · 🗑 des
 
 | Legado | Destino no 11.1.0 | Status |
 |---|---|---|
-| 11 controllers de páginas (About, Faq, DataSources, Indicators, Participate, Tede, Participants, Network, Diretrizes, Technology) + rotas literais | Mantidos com as mesmas URLs | ⏳ |
-| `RecordDriver\SolrDefault` (~40 métodos: orientadores, banca, Lattes, assuntos CNPq, resumos, DarkID…) | Estende `VuFind\RecordDriver\SolrDefault` do 11 | ⏳ |
-| `View\Helper\Root\RecordDataFormatterFactory` | Estrutura do 11 (factory + `RecordDataFormatter/*.ini`) | ⏳ |
-| `View\Helper\Root\Piwik` (Matomo LA Referencia) | Subclasse de `Matomo` (Piwik está deprecated) | ⏳ |
-| `BulkExportController`, `BulkExportConfirm`, `ExecuteBulkExport` | Reescrita segura (sem `exec`, sem proxy aberto) | ⏸ depende do serviço bulk-downloader |
+| 11 controllers de páginas (About, Faq, DataSources, Indicators, Participate, Tede, Participants, Network, Diretrizes, Technology) + rotas literais | Mantidos com as mesmas URLs e nomes de rota; base comum `AbstractPageController`; `?id=` do DataSources validado | 🔧 portado, falta testar |
+| `RecordDriver\SolrDefault` (~40 métodos: orientadores, banca, Lattes, assuntos CNPq, resumos, DarkID…) | Estende `VuFind\RecordDriver\SolrDefault` do 11. Corrigidos: `getAbstractSpa` (legado tinha `getAbstracSpa`, resumo em espanhol nunca aparecia) e closure de `getSubjectsByField` | 🔧 portado, falta testar com dados |
+| `View\Helper\Root\RecordDataFormatterFactory` | `Bdtd\RecordDataFormatter\Specs\Bdtd` (plugin `recorddataformatter_specs`), escolhido pelo driver via `getRecordDataFormatterSpecClass()` | 🔧 portado, falta testar |
+| `View\Helper\Root\Piwik` (Matomo LA Referencia) | `Bdtd\View\Helper\Root\Matomo` (única mudança real: envia `oaipmhID`, `repositoryID`, `countryID`); registro no `theme.config.php` do tema | 🔧 portado, falta registrar no tema |
+| `BulkExportController`, `BulkExportConfirm`, `ExecuteBulkExport` | Removidos do módulo (RCE/SSRF). Reescrita segura quando o serviço bulk-downloader estiver disponível; código original em `legacy-7.1.1` | ⏸ |
 | `module.config.php.*.bak` | — | 🗑 |
 
 ## Edições de core no legado
 
 | Arquivo do core editado | Intenção | Destino | Status |
 |---|---|---|---|
-| `Record/Loader.php` + `LoaderFactory.php` | Registro ausente no Solr → busca ID novo (`ids/`) ou backup (`records/`) na oasisbr-api | `Bdtd\Record\Loader` registrado no módulo, com `HttpService` e timeout curto | ⏳ |
-| `RecordDriver/DefaultRecord.php` | `getSource()` → `reponame_str` | Método no driver `Bdtd\RecordDriver\SolrDefault` | ⏳ |
-| `MetadataVocabulary/AbstractBase.php` + `DublinCore.php` | Meta tag `DC.description` (resumo) | Override do plugin de vocabulário no módulo | ⏳ |
+| `Record/Loader.php` + `LoaderFactory.php` | Registro ausente no Solr → busca ID novo (`ids/`) ou backup (`records/`) na oasisbr-api | Ponto de extensão nativo `record_fallbackloader`: `Bdtd\Record\FallbackLoader\Solr` (Guzzle, timeout 5 s, falha silenciosa com log). URL em `local/config/vufind/Apis.ini` (vazia = desligado) | 🔧 portado, API desligada |
+| `RecordDriver/DefaultRecord.php` | `getSource()` → `reponame_str` | Método no driver `Bdtd\RecordDriver\SolrDefault` | ✅ |
+| `MetadataVocabulary/AbstractBase.php` + `DublinCore.php` | Meta tag `DC.description` (resumo) | **Já existe no VuFind 11** (via `getSummary`) — nada a fazer | ✅ |
 | `Form/Form.php` | Assunto do e-mail = "assunto - nome" | Só config: `FeedbackForms.yaml` com `%%subject%% - %%name%%` | ⏳ |
 | `View/Helper/Root/Citation.php`, `Form.php` etc. | Apenas reformatação (sem mudança funcional) | — | 🗑 |
 | `public/index.php` | Desafio JS antibot | `RateLimiter.yaml` nativo + fail2ban; desafio JS no módulo só se necessário | ⏳ |

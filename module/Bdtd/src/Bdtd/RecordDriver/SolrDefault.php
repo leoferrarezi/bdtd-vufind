@@ -1,409 +1,527 @@
 <?php
 
+/**
+ * Driver de registro da BDTD (índice no formato LA Referencia / DSpace).
+ *
+ * PHP version 8
+ *
+ * @category BDTD
+ * @package  RecordDrivers
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://github.com/leoferrarezi/bdtd-vufind
+ */
+
 namespace Bdtd\RecordDriver;
 
-use VuFind\RecordDriver\Response as Response;
+use VuFind\RecordDriver\Response\PublicationDetails;
 
+use function count;
+use function is_array;
+
+/**
+ * Estende o SolrDefault do VuFind com os campos de teses e dissertações
+ * (orientadores, banca, Lattes, assuntos CNPq, resumos por idioma, dARK etc.).
+ *
+ * Portado do legado 7.1.1. Mudanças em relação ao legado:
+ * - getSource() passou do core (DefaultRecord) para cá;
+ * - getAbstractSpa() corrigido (o legado definia getAbstracSpa e o resumo em
+ *   espanhol nunca aparecia) — o nome antigo continua como alias;
+ * - getSubjectsByField() capturava $type/$source fora do escopo da closure.
+ *
+ * @category BDTD
+ * @package  RecordDrivers
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://github.com/leoferrarezi/bdtd-vufind
+ */
 class SolrDefault extends \VuFind\RecordDriver\SolrDefault
 {
+    /**
+     * Texto exibido quando a instituição não informou um campo obrigatório.
+     *
+     * @var string
+     */
+    public const NA_MESSAGE = 'Não Informado pela instituição';
 
-
-  const NA_MESSAGE = "Não Informado pela instituição";
-
-
-
-  public function getFieldsValuesDefault($fields)
-  {
-    $values = [];
-
-    foreach ($fields as $field) {
-      if (isset($this->fields[$field])) {
-        $field_value = $this->fields[$field];
-        if (!is_array($field_value))
-          $field_value = array($field_value);
-
-        $values = array_merge($values, $field_value);
-      }
+    /**
+     * Classe de especificação do RecordDataFormatter (campos exibidos no registro).
+     *
+     * @return ?string
+     */
+    public function getRecordDataFormatterSpecClass(): ?string
+    {
+        return \Bdtd\RecordDataFormatter\Specs\Bdtd::class;
     }
 
-    return array_unique($values);
-  }
-
-
-  public function getFieldValue($field)
-  {
-    $value = null;
-    $onlyField = array($field);
-
-    $value = $this->getFieldsValues($onlyField);
-
-    if (is_array($value)) {
-      $value = $value[0];
+    /**
+     * Valores (sem repetição) de um conjunto de campos do Solr.
+     *
+     * @param array $fields Campos
+     *
+     * @return array
+     */
+    public function getFieldsValuesDefault(array $fields): array
+    {
+        $values = [];
+        foreach ($fields as $field) {
+            if (isset($this->fields[$field])) {
+                $values = array_merge($values, (array)$this->fields[$field]);
+            }
+        }
+        return array_values(array_unique($values));
     }
 
-    return $value;
-  }
-
-  /**
-   * Get all field occurrences
-   *
-   * @param array $fields to compile and return
-   * @return array
-   */
-  public function getFieldsValues($fields, $na_message = true)
-  {
-    $values = $this->getFieldsValuesDefault($fields);
-
-    if (sizeof($values) == 0 && $na_message) {
-      array_push($values, self::NA_MESSAGE);
+    /**
+     * Valores de um conjunto de campos; opcionalmente devolve NA_MESSAGE se vazio.
+     *
+     * @param array $fields     Campos
+     * @param bool  $naMessage  Incluir NA_MESSAGE quando não houver valores?
+     *
+     * @return array
+     */
+    public function getFieldsValues(array $fields, bool $naMessage = true): array
+    {
+        $values = $this->getFieldsValuesDefault($fields);
+        if (count($values) === 0 && $naMessage) {
+            $values[] = self::NA_MESSAGE;
+        }
+        return $values;
     }
 
-    return $values;
-  }
-
-  /**
-   * Deduplicate author information into associative array with main/corporate/
-   * secondary keys.
-   *
-   * @param array $dataFields An array of extra data fields to retrieve (see
-   * getAuthorDataFields)
-   *
-   * @return array
-   */
-  public function getDeduplicatedAuthors($dataFields = ['profile'])
-  {
-    return parent::getDeduplicatedAuthors($dataFields);
-  }
-
-  /**
-   * Get Author Information with Associated Data Fields
-   *
-   * @param string $index      The author index [primary, corporate, or secondary]
-   * used to construct a method name for retrieving author data (e.g.
-   * getPrimaryAuthors).
-   * @param array  $dataFields An array of fields to used to construct method
-   * names for retrieving author-related data (e.g., if you pass 'role' the
-   * data method will be similar to getPrimaryAuthorsRoles). This value will also
-   * be used as a key associated with each author in the resulting data array.
-   *
-   * @return array
-   */
-  /*public function getAuthorDataFields($index, $dataFields = [])
-  {
-      $data = $dataFieldValues = [];
-
-      // Collect author data
-      $authorMethod = sprintf('get%sAuthors', ucfirst($index));
-      $authors = $this->tryMethod($authorMethod, [], []);
-
-      // Collect attribute data
-      foreach ($dataFields as $field) {
-          $fieldMethod = $authorMethod . ucfirst($field) . 's';
-          $dataFieldValues[$field] = $this->tryMethod($fieldMethod, [], []);
-      }
-
-      // Match up author and attribute data (this assumes that the attribute
-      // arrays have the same indices as the author array; i.e. $author[$i]
-      // has $dataFieldValues[$attribute][$i].
-      foreach ($authors as $i => $author) {
-          if (!isset($data[$author])) {
-              $data[$author] = [];
-          }
-
-          foreach ($dataFieldValues as $field => $dataFieldValue) {
-              if (!empty($dataFieldValue[$i])) {
-                  $data[$author][$field][] = $dataFieldValue[$i];
-              } else {
-                $data[$author][$field][] = ["NA"];
-              }
-          }
-      }
-
-      return $data;
-  }*/
-
-  /**
-   ** AUTHORS Data
-   */
-
-  /**
-   *
-   * @return array
-   */
-  public function getPrimaryAuthorsProfiles()
-  {
-    return $this->getFieldsValues(['dc.contributor.authorLattes.fl_str_mv'], false);
-  }
-
-
-  /**
-   ** CONTRIBUTORS Data
-   */
-
-  /**
-   * Main function called from RecordDataFormaterFactory, calls functions
-   * with pattern get[XXX]Authors and get[XXX]Authors[YYY]s
-   * where XXX is on of advisor, coadvisor, referee
-   * and YYY is a datafile: ie: profile
-   *
-   * @param array $dataFields An array of extra data fields to retrieve (see
-   * getAuthorDataFields)
-   *
-   * @return array
-   */
-  public function getContributors($dataFields = ['profile'])
-  {
-    $authors = [];
-    foreach (['advisor', 'coadvisor', 'referee'] as $type) {
-      $authors[$type] = parent::getAuthorDataFields($type, $dataFields);
-    }
-    return $authors;
-  }
-
-
-  /**
-   * Advisors
-   */
-  public function getAdvisorAuthors()
-  {
-    return $this->getFieldsValues(['dc.contributor.advisor1.fl_str_mv', 'dc.contributor.advisor2.fl_str_mv']);
-  }
-  public function getAdvisorAuthorsProfiles()
-  {
-    return $this->getFieldsValues(['dc.contributor.advisor1Lattes.fl_str_mv', 'dc.contributor.advisor2Lattes.fl_str_mv'], false);
-  }
-
-  /**
-   * Coadvisor
-   */
-  public function getCoadvisorAuthors()
-  {
-    // return $this->getFieldsValues(['dc.contributor.advisor-co1.fl_str_mv','dc.contributor.advisor-co2.fl_str_mv'], false);
-    return $this->getFieldsValues(['dc.contributor.co.fl_str_mv'], false);
-  }
-  public function getCoadvisorAuthorsProfiles()
-  {
-    return $this->getFieldsValues(['dc.contributor.advisor-co1Lattes.fl_str_mv', 'dc.contributor.advisor-co2Lattes.fl_str_mv'], false);
-  }
-
-  /**
-   * Referee
-   */
-  public function getRefereeAuthors()
-  {
-    return $this->getFieldsValues([
-      'dc.contributor.referee1.fl_str_mv', 'dc.contributor.referee2.fl_str_mv',
-      'dc.contributor.referee3.fl_str_mv', 'dc.contributor.referee4.fl_str_mv', 'dc.contributor.referee5.fl_str_mv'
-    ]);
-  }
-  public function getRefereeAuthorsProfiles()
-  {
-    return $this->getFieldsValues([
-      'dc.contributor.referee1Lattes.fl_str_mv', 'dc.contributor.referee2Lattes.fl_str_mv',
-      'dc.contributor.referee3Lattes.fl_str_mv', 'dc.contributor.referee4Lattes.fl_str_mv', 'dc.contributor.referee5Lattes.fl_str_mv'
-    ], false);
-  }
-
-
-  /**
-   *  SUBJECTS
-   **/
-
-  /**
-   * Get all subject headings associated with this record.  Each heading is
-   * returned as an array of chunks, increasing from least specific to most
-   * specific.
-   *
-   * @param bool $extended Whether to return a keyed array with the following
-   * keys:
-   * - heading: the actual subject heading chunks
-   * - type: heading type
-   * - source: source vocabulary
-   *
-   * @return array
-   */
-  public function getSubjectsByField($field, $type, $source, $extended = false)
-  {
-    $headings =  $this->getFieldsValues([$field], false);
-
-    // The Solr index doesn't currently store subject headings in a broken-down
-    // format, so we'll just send each value as a single chunk.  Other record
-    // drivers (i.e. MARC) can offer this data in a more granular format.
-    $callback = function ($i) use ($extended) {
-      return $extended
-        ? ['heading' => [$i], 'type' => $type, 'source' => $source]
-        : [$i];
-    };
-    return array_map($callback, array_unique($headings));
-  }
-
-  public function getAllSubjectHeadings($extended = false)
-  {
-    $headings = [];
-
-    $headings = array_merge($headings,  $this->getSubjectsByField("dc.subject.cnpq.fl_str_mv", "cnpq", "cnpq", $extended));
-    $headings = array_merge($headings,  $this->getSubjectsByField("dc.subject.eng.fl_str_mv", "original", "eng", $extended));
-    $headings = array_merge($headings,  $this->getSubjectsByField("dc.subject.spa.fl_str_mv", "original", "spa", $extended));
-    $headings = array_merge($headings,  $this->getSubjectsByField("dc.subject.por.fl_str_mv", "original", "por", $extended));
-
-    if (sizeof($headings) == 0) {
-      array_push($headings, self::NA_MESSAGE);
+    /**
+     * Primeiro valor de um campo (ou NA_MESSAGE).
+     *
+     * @param string $field Campo
+     *
+     * @return ?string
+     */
+    public function getFieldValue(string $field): ?string
+    {
+        return $this->getFieldsValues([$field])[0] ?? null;
     }
 
-    return $headings;
-  }
-
-  public function getCNPQSubjects()
-  {
-    return  $this->getSubjectsByField("dc.subject.cnpq.fl_str_mv", "cnpq", "cnpq");
-  }
-
-  public function getEngSubjects()
-  {
-    return  $this->getSubjectsByField("dc.subject.eng.fl_str_mv", "original", "eng");
-  }
-
-  public function getSpaSubjects()
-  {
-    return  $this->getSubjectsByField("dc.subject.spa.fl_str_mv", "original", "spa");
-  }
-
-  public function getPorSubjects()
-  {
-    return  $this->getSubjectsByField("dc.subject.por.fl_str_mv", "original", "por");
-  }
-
-
-  /**
-   *  Published
-   **/
-  /**
-   * Get an array of publication detail lines combining information from
-   * getPublicationDates(), getPublishers() and getPlacesOfPublication().
-   *
-   * @return array
-   */
-  public function getPublicationDetailsByPublishers($names)
-  {
-
-    $i = 0;
-    $retval = [];
-    while (isset($names[$i])) {
-      // Build objects to represent each set of data; these will
-      // transform seamlessly into strings in the view layer.
-      $retval[] = new Response\PublicationDetails(
-        '',
-        $names[$i],
-        ''
-      );
-      $i++;
+    /**
+     * Autores deduplicados, trazendo o perfil Lattes por padrão.
+     *
+     * @param array $dataFields Dados extras por autor (ver getAuthorDataFields)
+     *
+     * @return array
+     */
+    public function getDeduplicatedAuthors($dataFields = ['profile'])
+    {
+        return parent::getDeduplicatedAuthors($dataFields);
     }
 
-    return $retval;
-  }
+    /**
+     * Perfis Lattes dos autores principais.
+     *
+     * @return array
+     */
+    public function getPrimaryAuthorsProfiles(): array
+    {
+        return $this->getFieldsValues(['dc.contributor.authorLattes.fl_str_mv'], false);
+    }
 
+    /**
+     * Orientadores, coorientadores e banca, com dados extras (perfil Lattes).
+     * Chama get<Tipo>Authors() e get<Tipo>Authors<Dado>s() para cada tipo.
+     *
+     * @param array $dataFields Dados extras por pessoa
+     *
+     * @return array
+     */
+    public function getContributors(array $dataFields = ['profile']): array
+    {
+        $authors = [];
+        foreach (['advisor', 'coadvisor', 'referee'] as $type) {
+            $authors[$type] = $this->getAuthorDataFields($type, $dataFields);
+        }
+        return $authors;
+    }
 
+    /**
+     * Orientadores.
+     *
+     * @return array
+     */
+    public function getAdvisorAuthors(): array
+    {
+        return $this->getFieldsValues(
+            ['dc.contributor.advisor1.fl_str_mv', 'dc.contributor.advisor2.fl_str_mv']
+        );
+    }
 
-  public function getRootPublishers()
-  {
-    return $this->getPublicationDetailsByPublishers($this->getFieldsValues(['dc.publisher.none.fl_str_mv']));
-  }
+    /**
+     * Perfis Lattes dos orientadores.
+     *
+     * @return array
+     */
+    public function getAdvisorAuthorsProfiles(): array
+    {
+        return $this->getFieldsValues(
+            ['dc.contributor.advisor1Lattes.fl_str_mv', 'dc.contributor.advisor2Lattes.fl_str_mv'],
+            false
+        );
+    }
 
-  public function getProgramPublishers()
-  {
-    return  $this->getPublicationDetailsByPublishers($this->getFieldsValues(['dc.publisher.program.fl_str_mv']));
-  }
+    /**
+     * Coorientadores.
+     *
+     * @return array
+     */
+    public function getCoadvisorAuthors(): array
+    {
+        return $this->getFieldsValues(['dc.contributor.co.fl_str_mv'], false);
+    }
 
-  public function getAccessType()
-  {
-    return  $this->getPublicationDetailsByPublishers($this->getFieldsValues(['eu_rights_str_mv']));
-  }
+    /**
+     * Perfis Lattes dos coorientadores.
+     *
+     * @return array
+     */
+    public function getCoadvisorAuthorsProfiles(): array
+    {
+        return $this->getFieldsValues(
+            ['dc.contributor.advisor-co1Lattes.fl_str_mv', 'dc.contributor.advisor-co2Lattes.fl_str_mv'],
+            false
+        );
+    }
 
-  public function getDarkID()
-  {
-    // Add essa verificação pq estava dando erro para exibir itens removidos do solr (esses itens vem da api de persistência de ids)
-    return isset($this->fields['dc.identifier.dark.fl_str_mv']) ? $this->fields['dc.identifier.dark.fl_str_mv'][0] : '';
-  }
+    /**
+     * Membros da banca.
+     *
+     * @return array
+     */
+    public function getRefereeAuthors(): array
+    {
+        return $this->getFieldsValues($this->numberedFields('dc.contributor.referee%d.fl_str_mv', 5));
+    }
 
-  public function getDepartmentPublishers()
-  {
-    return $this->getPublicationDetailsByPublishers($this->getFieldsValues(['dc.publisher.department.fl_str_mv']));
-  }
+    /**
+     * Perfis Lattes dos membros da banca.
+     *
+     * @return array
+     */
+    public function getRefereeAuthorsProfiles(): array
+    {
+        return $this->getFieldsValues($this->numberedFields('dc.contributor.referee%dLattes.fl_str_mv', 5), false);
+    }
 
-  public function getCountryPublishers()
-  {
-    return $this->getPublicationDetailsByPublishers($this->getFieldsValues(['dc.publisher.country.fl_str_mv']));
-  }
+    /**
+     * Assuntos de um campo, no formato de getAllSubjectHeadings().
+     *
+     * @param string $field    Campo do Solr
+     * @param string $type     Tipo do cabeçalho
+     * @param string $source   Vocabulário de origem
+     * @param bool   $extended Formato estendido (heading/type/source)?
+     *
+     * @return array
+     */
+    public function getSubjectsByField(string $field, string $type, string $source, bool $extended = false): array
+    {
+        $headings = $this->getFieldsValues([$field], false);
+        $callback = fn ($heading) => $extended
+            ? ['heading' => [$heading], 'type' => $type, 'source' => $source]
+            : [$heading];
+        return array_map($callback, $headings);
+    }
 
-  public function getKnowledgeareaPublishers()
-  {
-    return $this->getPublicationDetailsByPublishers($this->getFieldsValues(['dc.publisher.knowledgearea.fl_str_mv']));
-  }
+    /**
+     * Todos os assuntos (CNPq, inglês, espanhol, português).
+     *
+     * @param bool $extended Formato estendido?
+     *
+     * @return array
+     */
+    public function getAllSubjectHeadings($extended = false)
+    {
+        $headings = array_merge(
+            $this->getSubjectsByField('dc.subject.cnpq.fl_str_mv', 'cnpq', 'cnpq', $extended),
+            $this->getSubjectsByField('dc.subject.eng.fl_str_mv', 'original', 'eng', $extended),
+            $this->getSubjectsByField('dc.subject.spa.fl_str_mv', 'original', 'spa', $extended),
+            $this->getSubjectsByField('dc.subject.por.fl_str_mv', 'original', 'por', $extended)
+        );
+        return $headings ?: [$extended ? ['heading' => [self::NA_MESSAGE], 'type' => '', 'source' => ''] : [self::NA_MESSAGE]];
+    }
 
-  /*Mostra novos campos no registro programID, areaavaliacao, grandearea*/
-  public function getprogramIDPublishers()
-  {
-    return $this->getPublicationDetailsByPublishers($this->getFieldsValues(['dc.publisher.programID.fl_str_mv']));
-  }
+    /**
+     * Assuntos CNPq.
+     *
+     * @return array
+     */
+    public function getCNPQSubjects(): array
+    {
+        return $this->getSubjectsByField('dc.subject.cnpq.fl_str_mv', 'cnpq', 'cnpq');
+    }
 
-  public function getareaavaliacaoPublishers()
-  {
-    return $this->getPublicationDetailsByPublishers($this->getFieldsValues(['dc.publisher.areaavaliacao.fl_str_mv']));
-  }
+    /**
+     * Assuntos em inglês.
+     *
+     * @return array
+     */
+    public function getEngSubjects(): array
+    {
+        return $this->getSubjectsByField('dc.subject.eng.fl_str_mv', 'original', 'eng');
+    }
 
-  public function getgrandeareaPublishers()
-  {
-    return $this->getPublicationDetailsByPublishers($this->getFieldsValues(['dc.publisher.grandearea.fl_str_mv']));
-  }
+    /**
+     * Assuntos em espanhol.
+     *
+     * @return array
+     */
+    public function getSpaSubjects(): array
+    {
+        return $this->getSubjectsByField('dc.subject.spa.fl_str_mv', 'original', 'spa');
+    }
 
-  /* Fim - Mostra novos campos */
+    /**
+     * Assuntos em português.
+     *
+     * @return array
+     */
+    public function getPorSubjects(): array
+    {
+        return $this->getSubjectsByField('dc.subject.por.fl_str_mv', 'original', 'por');
+    }
 
-  /**
-   * DESCRIPTION
-   *
-   */
+    /**
+     * Converte nomes em objetos PublicationDetails (para data-publicationDetails.phtml).
+     *
+     * @param array $names Nomes
+     *
+     * @return PublicationDetails[]
+     */
+    public function getPublicationDetailsByPublishers(array $names): array
+    {
+        return array_map(fn ($name) => new PublicationDetails('', $name, ''), $names);
+    }
 
-  public function getAbstractPor()
-  {
-    //return $this->getFieldsValues(['dc.description.abstract.por.fl_str_mv'], false);
-    return $this->getFieldsValues(['dc.description.resumo.por.fl_txt_mv'], false);
-  }
+    /**
+     * Instituição.
+     *
+     * @return PublicationDetails[]
+     */
+    public function getRootPublishers(): array
+    {
+        return $this->publishersFrom('dc.publisher.none.fl_str_mv');
+    }
 
-  public function getAbstractEng()
-  {
-    return $this->getFieldsValues(['dc.description.abstract.eng.fl_txt_mv'], false);
-  }
+    /**
+     * Programa de pós-graduação.
+     *
+     * @return PublicationDetails[]
+     */
+    public function getProgramPublishers(): array
+    {
+        return $this->publishersFrom('dc.publisher.program.fl_str_mv');
+    }
 
-  public function getAbstracSpa()
-  {
-    return $this->getFieldsValues(['dc.description.abstract.spa.fl_txt_mv'], false);
-  }
+    /**
+     * Departamento.
+     *
+     * @return PublicationDetails[]
+     */
+    public function getDepartmentPublishers(): array
+    {
+        return $this->publishersFrom('dc.publisher.department.fl_str_mv');
+    }
 
-  public function getCitation()
-  {
-    return $this->getFieldsValues(['dc.identifier.citation.fl_str_mv']);
-  }
+    /**
+     * País.
+     *
+     * @return PublicationDetails[]
+     */
+    public function getCountryPublishers(): array
+    {
+        return $this->publishersFrom('dc.publisher.country.fl_str_mv');
+    }
 
-  /**
-   * Access Level
-   **/
-  public function getAccessLevel()
-  {
-    return $this->getFieldValue('eu_rights_str_mv');
-  }
+    /**
+     * Área do conhecimento.
+     *
+     * @return PublicationDetails[]
+     */
+    public function getKnowledgeareaPublishers(): array
+    {
+        return $this->publishersFrom('dc.publisher.knowledgearea.fl_str_mv');
+    }
 
-  public function getURLsArray()
-  {
-    return $this->getFieldsValues(['url'], false);
-  }
+    /**
+     * ID do programa (não exibido hoje; mantido para uso futuro).
+     *
+     * @return PublicationDetails[]
+     */
+    public function getProgramIDPublishers(): array
+    {
+        return $this->publishersFrom('dc.publisher.programID.fl_str_mv');
+    }
 
-  public function getIdentifierOAI()
-  {
-    return $this->getFieldValue('oai_identifier_str');
-  }
+    /**
+     * Área de avaliação (não exibido hoje).
+     *
+     * @return PublicationDetails[]
+     */
+    public function getAreaAvaliacaoPublishers(): array
+    {
+        return $this->publishersFrom('dc.publisher.areaavaliacao.fl_str_mv');
+    }
 
-  public function getRepositoryID()
-  {
-    return $this->getFieldValue('repository_id_str');
-  }
+    /**
+     * Grande área (não exibido hoje).
+     *
+     * @return PublicationDetails[]
+     */
+    public function getGrandeAreaPublishers(): array
+    {
+        return $this->publishersFrom('dc.publisher.grandearea.fl_str_mv');
+    }
+
+    /**
+     * Tipo de acesso (aberto, embargado…).
+     *
+     * @return PublicationDetails[]
+     */
+    public function getAccessType(): array
+    {
+        return $this->publishersFrom('eu_rights_str_mv');
+    }
+
+    /**
+     * Nível de acesso (primeiro valor).
+     *
+     * @return ?string
+     */
+    public function getAccessLevel(): ?string
+    {
+        return $this->getFieldValue('eu_rights_str_mv');
+    }
+
+    /**
+     * Identificador persistente dARK. Registros vindos do backup da oasisbr-api
+     * podem não ter o campo.
+     *
+     * @return string
+     */
+    public function getDarkID(): string
+    {
+        $values = (array)($this->fields['dc.identifier.dark.fl_str_mv'] ?? []);
+        return (string)($values[0] ?? '');
+    }
+
+    /**
+     * Resumo em português.
+     *
+     * @return array
+     */
+    public function getAbstractPor(): array
+    {
+        return $this->getFieldsValues(['dc.description.resumo.por.fl_txt_mv'], false);
+    }
+
+    /**
+     * Resumo em inglês.
+     *
+     * @return array
+     */
+    public function getAbstractEng(): array
+    {
+        return $this->getFieldsValues(['dc.description.abstract.eng.fl_txt_mv'], false);
+    }
+
+    /**
+     * Resumo em espanhol.
+     *
+     * @return array
+     */
+    public function getAbstractSpa(): array
+    {
+        return $this->getFieldsValues(['dc.description.abstract.spa.fl_txt_mv'], false);
+    }
+
+    /**
+     * Alias do nome com erro de digitação usado no legado (templates antigos).
+     *
+     * @return array
+     *
+     * @deprecated Use getAbstractSpa()
+     */
+    public function getAbstracSpa(): array
+    {
+        return $this->getAbstractSpa();
+    }
+
+    /**
+     * Citação informada pela instituição.
+     *
+     * @return array
+     */
+    public function getCitation(): array
+    {
+        return $this->getFieldsValues(['dc.identifier.citation.fl_str_mv']);
+    }
+
+    /**
+     * URLs do registro.
+     *
+     * @return array
+     */
+    public function getURLsArray(): array
+    {
+        return $this->getFieldsValues(['url'], false);
+    }
+
+    /**
+     * Identificador OAI-PMH de origem.
+     *
+     * @return ?string
+     */
+    public function getIdentifierOAI(): ?string
+    {
+        return $this->getFieldsValuesDefault(['oai_identifier_str'])[0] ?? null;
+    }
+
+    /**
+     * ID do repositório de origem (usado no Matomo da LA Referencia).
+     *
+     * @return ?string
+     */
+    public function getRepositoryID(): ?string
+    {
+        return $this->getFieldsValuesDefault(['repository_id_str'])[0] ?? null;
+    }
+
+    /**
+     * Nome do repositório de origem (no legado era uma edição do core DefaultRecord).
+     *
+     * @return string
+     */
+    public function getSource()
+    {
+        $value = $this->fields['reponame_str'] ?? '';
+        return is_array($value) ? (string)($value[0] ?? '') : (string)$value;
+    }
+
+    /**
+     * Gera nomes de campos numerados (ex.: referee1…referee5).
+     *
+     * @param string $pattern Padrão sprintf com %d
+     * @param int    $count   Quantidade
+     *
+     * @return array
+     */
+    protected function numberedFields(string $pattern, int $count): array
+    {
+        return array_map(fn ($i) => sprintf($pattern, $i), range(1, $count));
+    }
+
+    /**
+     * Valores de um campo como PublicationDetails (com NA_MESSAGE se vazio).
+     *
+     * @param string $field Campo
+     *
+     * @return PublicationDetails[]
+     */
+    protected function publishersFrom(string $field): array
+    {
+        return $this->getPublicationDetailsByPublishers($this->getFieldsValues([$field]));
+    }
 }

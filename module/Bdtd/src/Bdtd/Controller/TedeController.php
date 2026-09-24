@@ -1,13 +1,26 @@
 <?php
 
+/**
+ * Página institucional "Tede" da BDTD.
+ *
+ * PHP version 8
+ *
+ * @category BDTD
+ * @package  Controller
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://github.com/leoferrarezi/bdtd-vufind
+ */
+
 namespace Bdtd\Controller;
 
-class TedeController extends \VuFind\Controller\AbstractBase
+/**
+ * Página institucional "Tede" (template tede/home.phtml).
+ *
+ * @category BDTD
+ * @package  Controller
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://github.com/leoferrarezi/bdtd-vufind
+ */
+class TedeController extends AbstractPageController
 {
-
-    public function homeAction()
-    {
-        return $this->createViewModel();
-    }
 }
-

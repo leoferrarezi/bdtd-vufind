@@ -1,12 +1,26 @@
 <?php
 
+/**
+ * Página institucional "About" da BDTD.
+ *
+ * PHP version 8
+ *
+ * @category BDTD
+ * @package  Controller
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://github.com/leoferrarezi/bdtd-vufind
+ */
+
 namespace Bdtd\Controller;
 
-class AboutController extends \VuFind\Controller\AbstractBase
+/**
+ * Página institucional "About" (template about/home.phtml).
+ *
+ * @category BDTD
+ * @package  Controller
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://github.com/leoferrarezi/bdtd-vufind
+ */
+class AboutController extends AbstractPageController
 {
-
-  public function homeAction()
-  {
-    return $this->createViewModel();
-  }
 }
