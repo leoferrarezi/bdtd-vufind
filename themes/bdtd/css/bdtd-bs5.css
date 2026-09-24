@@ -71,3 +71,44 @@
 .search-form .searchForm-query .search-input {
   width: 100%;
 }
+
+/*
+ * Compatibilidade de ícones: o CSS legado usa font-family "FontAwesome" (versão 4) em
+ * pseudo-elementos. Apelidamos esse nome para a fonte sólida do FontAwesome 7 que vem
+ * com o bootstrap5 — os códigos usados (\f055 \f056 \f0dc \f106 \f107) são os mesmos.
+ */
+@font-face {
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+  src: url("../../bootstrap5/css/vendor/font-awesome/webfonts/fa-solid-900.woff2") format("woff2");
+}
+
+/* Facetas: o VuFind 11 já desenha as setas de abrir/fechar; a do legado duplicava */
+.facet-group [data-toggle="collapse"]::after,
+.facet-group .collapsed::after {
+  content: none;
+}
+
+/* Botão Exportar: o dropdown do Bootstrap 5 já tem a própria seta */
+.export button::after,
+.export.open button::after {
+  font-family: inherit;
+}
+
+/*
+ * Link "Acessar documento": o legado fixava width: 10px (sem efeito no Bootstrap 3, onde o
+ * link era inline). No VuFind 11 o link é inline-block e a largura cortava o texto.
+ */
+.card-results .link a {
+  display: inline;
+  width: auto;
+  overflow: visible;
+}
+
+/* Autor e data em linhas separadas, como no legado */
+.card-results .author .authors,
+.card-results .author .publish-date {
+  display: block;
+}
