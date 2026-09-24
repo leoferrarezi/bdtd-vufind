@@ -1,147 +1,162 @@
 <?php
-// Set up page title:
-$lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
-$headTitle = $this->slot('head-title')
-  ->get($this->translate('Search Results') . (empty($lookfor) ? '' : ": {$lookfor}"));
-$this->headTitle($headTitle);
+  // BDTD: baseado em bootstrap5/templates/search/results.phtml (VuFind 11.1.0).
+  // Diferenças: total e controles numa faixa acima das colunas (result-header),
+  // botão "Exportar" opcional ([BdtdTheme] bulk_export) e sem results-tools.
+  // Registros ocultos: config searches.ini [RawHiddenFilters] (no legado era código aqui).
 
-// Set up search box:
-$this->layout()->searchbox = $this->context($this)->renderInContext(
-  'search/searchbox.phtml',
-  [
-    'lookfor' => $lookfor,
-    'searchIndex' => $this->params->getSearchHandler(),
-    'searchType' => $this->params->getSearchType(),
-    'searchId' => $this->results->getSearchId(),
-    'searchClassId' => $this->params->getSearchClassId(),
-    'checkboxFilters' => $this->params->getCheckboxFacets(),
-    'filterList' => $this->params->getFilterList(true),
-    'hasDefaultsApplied' => $this->params->hasDefaultsApplied(),
-    'selectedShards' => $this->params->getSelectedShards(),
-    'ignoreHiddenFiltersInRequest' => $this->ignoreHiddenFiltersInRequest ?? false,
-    'ignoreHiddenFilterMemory' => $this->ignoreHiddenFilterMemory ?? false,
-  ]
-);
+  // Set up page title:
+  $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
+  $headTitle = $this->slot('head-title')
+        ->get($this->translate('Search Results') . (empty($lookfor) ? '' : ": {$lookfor}"));
+  $this->headTitle($headTitle);
 
-// Set up breadcrumbs:
-$this->layout()->breadcrumbs .= '<li class="active">' . $this->escapeHtml($headTitle) . '</li>';
+  // Set up search box:
+  $this->layout()->searchbox = $this->context($this)->renderInContext(
+      'search/searchbox.phtml',
+      [
+        'lookfor' => $lookfor,
+        'searchIndex' => $this->params->getSearchHandler(),
+        'searchType' => $this->params->getSearchType(),
+        'searchId' => $this->results->getSearchId(),
+        'searchClassId' => $this->params->getSearchClassId(),
+        'checkboxFilters' => $this->params->getCheckboxFacets(),
+        'filterList' => $this->params->getFilterList(true),
+        'hasDefaultsApplied' => $this->params->hasDefaultsApplied(),
+        'selectedShards' => $this->params->getSelectedShards(),
+        'ignoreHiddenFiltersInRequest' => $this->ignoreHiddenFiltersInRequest ?? false,
+      ]
+  );
 
-// Enable cart if appropriate:
-$this->showBulkOptions = $this->params->getOptions()->supportsCart() && $this->showBulkOptions;
-// Checkboxes if appropriate:
-$this->showCartControls = $this->params->getOptions()->supportsCart() && $this->cart()->isActive()
-  && ($this->showBulkOptions || !$this->cart()->isActiveInSearch());
-// Enable bulk options if appropriate:
-$this->showCheckboxes = $this->showCartControls || $this->showBulkOptions;
+  // Set up breadcrumbs:
+  $this->breadcrumbs()->add($headTitle, active: true);
 
-$this->render('search/results-scripts.phtml', ['displayVersions' => !empty($this->params->getOptions()->getVersionsAction())]);
+  // Set up search controls (avoiding unnecessary rendering):
+  if (!$this->slot('search-controls')->isset()) {
+      $this->slot('search-controls')->set(
+          $this->render('search/controls/limit.phtml')
+          . ' ' . $this->render('search/controls/sort.phtml')
+          . ' ' . $this->render('search/controls/view.phtml')
+      );
+  }
 
-// Load only if list view parameter is NOT full:
-if ($this->params->getOptions()->getListViewOption() !== 'full') {
-  $this->headScript()->appendFile("record.js");
-  $this->headScript()->appendFile("embedded_record.js");
-}
+  // Store search id:
+  $this->layout()->searchId = $this->results->getSearchId();
+
+  $options = $this->params->getOptions();
+  $this->render(
+      'search/results-scripts.phtml',
+      [
+          'displayVersions' => !empty($options->getVersionsAction()),
+          'listViewOption' => $options->getListViewOption(),
+          'jsResults' => $options->loadResultsWithJsEnabled(),
+      ]
+  );
+  $recommendations = $this->results->getRecommendations('side');
+  $this->assetManager()->appendScriptString('var multiFacetsSelection = "' . $this->multiFacetsSelection . '";');
+
+  $recordTotal = $this->results->getResultTotal();
+  $bulkExport = (bool)($this->config()->get('config')->BdtdTheme->bulk_export ?? false);
 ?>
 
-<div class="result-header">
-  <?php if (($recordTotal = $this->results->getResultTotal()) > 0) : // only display these at very top if we have results 
-  ?>
-    <?php foreach ($this->results->getRecommendations('top') as $index => $current) : ?>
-      <?= $this->recommend($current, 'top', $index) ?>
+<h1 class="visually-hidden"><?=$this->escapeHtml($headTitle)?></h1>
+
+<div class="result-header"><?php /* BDTD */ ?>
+  <div class="search-header hidden-print">
+    <?php // Data-record-total attribute is for analytics use.  Do not remove. ?>
+    <div class="search-stats" data-record-total="<?=$this->escapeHtmlAttr($recordTotal)?>">
+      <?php if ($recordTotal > 0): ?>
+        <?php if ($this->results->getOptions()->getTopPaginatorStyle() === 'simple'): ?>
+          <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'Helpers/pagination-simple.phtml', ['params' => ['results' => $this->results]])?>
+        <?php else: ?>
+          <?=$this->context()->renderInContext('search/controls/showing.phtml', ['lookfor' => $lookfor, 'recordTotal' => $recordTotal]) ?>
+        <?php endif; ?>
+        <?php if ($recommendations): ?>
+          <?=$this->component('show-search-sidebar-button')?>
+        <?php endif; ?>
+      <?php else: ?>
+        <h2><?=$this->transEsc('nohit_heading')?></h2>
+      <?php endif; ?>
+    </div>
+
+    <?php if ($recordTotal > 0): ?>
+      <div class="search-controls">
+        <?=$this->slot('search-controls')?>
+      </div>
+      <?php if ($bulkExport): /* BDTD: exportação em massa (reescrita pendente) */ ?>
+        <div class="btn-group export dropdown">
+          <button class="btn btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <?=$this->transEsc('Export')?>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="<?=$this->escapeHtmlAttr($this->url('bulkexport-home') . '?total=' . $recordTotal . '&type=ris')?>" data-lightbox>
+                <?=$this->icon('format-file')?> <?=$this->transEsc('Export RIS')?>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="<?=$this->escapeHtmlAttr($this->url('bulkexport-home') . '?total=' . $recordTotal . '&type=csv')?>" data-lightbox>
+                <?=$this->icon('bdtd-download')?> <?=$this->transEsc('Export CSV')?>
+              </a>
+            </li>
+          </ul>
+        </div>
+      <?php endif; ?>
+    <?php endif; ?>
+  </div>
+</div>
+
+<div class="<?=$this->layoutClass('mainbody', (bool)$recommendations)?>">
+  <?php if ($recordTotal > 0): // only display these at very top if we have results ?>
+    <?php foreach ($this->results->getRecommendations('top') as $index => $current): ?>
+      <?=$this->recommend($current, 'top', $index)?>
     <?php endforeach; ?>
   <?php endif; ?>
-  <?= $this->flashmessages() ?>
-  <div class="search-header hidden-print">
-    <div class="search-stats">
-      <?php if ($recordTotal > 0) : ?>
-        <?= $this->context()->renderInContext('search/controls/showing.phtml', ['lookfor' => $lookfor, 'recordTotal' => $recordTotal]) ?>
-        <!-- <a class="search-filter-toggle visible-xs" href="#search-sidebar" data-toggle="offcanvas" title="<?= $this->transEscAttr('sidebar_expand') ?>">
-          <?= $this->transEsc('Refine Results') ?>
-        </a> -->
-      <?php else : ?>
-        <h2><?= $this->transEsc('nohit_heading') ?></h2>
-      <?php endif; ?>
-    </div>
+  <?=$this->flashmessages()?>
 
-    <?php if ($recordTotal > 0) : ?>
-      <div class="search-controls">
-        <?= $this->render('search/controls/limit.phtml') ?>
-        <?= $this->render('search/controls/sort.phtml') ?>
-        <?= $this->render('search/controls/view.phtml') ?>
-      </div>
-    <?php endif; ?>
-    <div class="btn-group export">
-      <button class="btn btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-        <?= $this->transEsc('Export') ?>
-      </button>
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <li>
-          <a class="btn" href="<?= $this->url('bulkexport-home') . '?total=' . $recordTotal . '&type=ris' ?>" data-lightbox>
-            <i class="fa fa-file-text-o" aria-hidden="true"></i>
-            <?= $this->transEsc('Export RIS') ?>
-          </a>
-        </li>
-        <li>
-          <a class="btn" href="<?= $this->url('bulkexport-home') . '?total=' . $recordTotal . '&type=csv' ?>" data-lightbox>
-            <i class="fa fa-file-excel-o" aria-hidden="true"></i>
-            <?= $this->transEsc('Export CSV') ?>
-          </a>
-        </li>
-      </ul>
-    </div>
-    <?php /* End Listing Options */ ?>
-  </div>
+  <?php if ($options->showRestrictedViewWarning() && $this->results->isRestrictedView()): ?>
+    <?=$this->render('error/restrictedViewWarning.phtml')?>
+  <?php endif; ?>
 
-
-  <div class="<?= $this->layoutClass('mainbody') ?>">
-    <?php if ($recordTotal < 1) : ?>
-      <p>
-        <?php
-        $emptyMessage = $this->slot('empty-message')->get(
-          $this->translate('nohit_lookfor_html', ['%%lookfor%%' => $this->escapeHtml($lookfor)])
-        );
+  <?php if ($recordTotal < 1): ?>
+    <p>
+      <?php
+        $default = $this->translate('nohit_lookfor_html', ['%%lookfor%%' => $this->escapeHtml($lookfor)]);
+        $emptyMessage = $this->slot('empty-message')->get($default);
         $this->layout()->srmessage = $emptyMessage;
         echo $emptyMessage;
-        ?>
-      </p>
-      <?php if (isset($this->parseError)) : ?>
-        <p class="alert alert-danger"><?= $this->transEsc('nohit_parse_error') ?></p>
-      <?php endif; ?>
-      <?php foreach (($top = $this->results->getRecommendations('top')) as $index => $current) : ?>
-        <?= $this->recommend($current, 'top', $index) ?>
-      <?php endforeach; ?>
-      <?php foreach ($this->results->getRecommendations('noresults') as $index => $current) : ?>
-        <?php if (!in_array($current, $top)) : ?>
-          <?= $this->recommend($current, 'noresults', $index) ?>
-        <?php endif; ?>
-      <?php endforeach; ?>
-    <?php else : ?>
-
-      <form id="search-cart-form" method="post" name="bulkActionForm" action="<?= $this->url('cart-searchresultsbulk') ?>" data-lightbox data-lightbox-onsubmit="bulkFormHandler">
-        <?= $this->context($this)->renderInContext('search/bulk-action-buttons.phtml', ['idPrefix' => '']) ?>
-      </form>
-
-      <?php
-      // IDs a serem ocultados
-      $hiddenIds = ['IEC-2_281ad121c7f952303548dc412774bb3c'];
-
-      // Define variável acessível dentro dos subtemplates
-      $this->hiddenIds = $hiddenIds;
       ?>
-
-      <?= $this->render('search/list-' . $this->params->getView() . '.phtml') ?>
-      <?= $this->context($this)->renderInContext('search/bulk-action-buttons.phtml', ['idPrefix' => 'bottom_', 'formAttr' => 'search-cart-form']) ?>
-
-      <?= $this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', ['results' => $this->results, 'options' => $this->paginationOptions ?? []]) ?>
-      <!-- <?= $this->context($this)->renderInContext('search/controls/results-tools.phtml', ['results' => $this->results]) ?> -->
+    </p>
+    <?php if (isset($this->parseError)): ?>
+      <p class="alert alert-danger"><?=$this->transEsc('nohit_parse_error')?></p>
     <?php endif; ?>
-  </div>
-  <?php /* End Main Listing */ ?>
+    <?php foreach (($top = $this->results->getRecommendations('top')) as $index => $current): ?>
+      <?=$this->recommend($current, 'top', $index)?>
+    <?php endforeach; ?>
+    <?php foreach ($this->results->getRecommendations('noresults') as $index => $current): ?>
+      <?php if (!in_array($current, $top)): ?>
+        <?=$this->recommend($current, 'noresults', $index)?>
+      <?php endif; ?>
+    <?php endforeach; ?>
+  <?php else: ?>
+    <?php if ($this->results->getOptions()->getTopPaginatorStyle() === 'full'): ?>
+      <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'Helpers/pagination-top.phtml', ['params' => ['results' => $this->results], 'options' => $this->paginationOptions ?? []])?>
+    <?php endif; ?>
+    <form id="search-cart-form" method="post" name="bulkActionForm" action="<?=$this->url('cart-searchresultsbulk')?>" data-lightbox data-lightbox-onsubmit="bulkFormHandler">
+      <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', ['idPrefix' => ''])?>
+    </form>
+    <?=$this->render('search/results-list.phtml')?>
+    <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', ['isBottom' => true, 'formAttr' => 'search-cart-form'])?>
+    <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'Helpers/pagination.phtml', ['params' => ['results' => $this->results], 'options' => $this->paginationOptions ?? []])?>
+  <?php endif; ?>
+</div>
+<?php /* End Main Listing */ ?>
 
-  <?php /* Narrow Search Options */ ?>
-  <div class="<?= $this->layoutClass('sidebar') ?>" id="search-sidebar">
-    <?php foreach ($this->results->getRecommendations('side') as $index => $current) : ?>
-      <?= $this->recommend($current, 'side', $index) ?>
+<?php /* Refine Search Options */ ?>
+<?php if ($recommendations): ?>
+  <div class="<?=$this->layoutClass('sidebar')?>" id="search-sidebar" role="region" aria-label="<?=$this->transEscAttr('Search sidebar') ?>">
+    <?php foreach ($recommendations as $index => $current): ?>
+      <?=$this->recommend($current, 'side', $index)?>
     <?php endforeach; ?>
   </div>
-  <?php /* End Narrow Search Options */ ?>
+<?php endif; ?>
+<?php /* End Refine Search Options */ ?>

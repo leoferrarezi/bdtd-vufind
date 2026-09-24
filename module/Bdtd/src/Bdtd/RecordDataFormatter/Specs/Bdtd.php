@@ -142,6 +142,8 @@ class Bdtd extends \VuFind\RecordDataFormatter\Specs\DefaultRecord
         );
         $spec->setTemplateLine('Access link', true, 'data-onlineAccess.phtml');
         $spec->setTemplateLine('Related Items', 'getAllRecordLinks', 'data-allRecordLinks.phtml');
+        // No legado o resumo era inserido à mão no fim da tabela (core.phtml)
+        $spec->setLine('Summary', 'getSummary');
         return $spec->getArray();
     }
 

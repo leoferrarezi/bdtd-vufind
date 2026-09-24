@@ -1,0 +1,63 @@
+/*
+ * BDTD — ajustes da migração Bootstrap 3 → 5 (VuFind 11).
+ * Carregado depois de style.css e custom.css (herdados do legado).
+ * Tudo que for correção de compatibilidade fica aqui, para style.css/custom.css
+ * continuarem iguais ao legado e o diff ficar legível.
+ */
+
+/* Número do resultado: no legado era <h2> dentro de .record-number */
+.card-results .record-number .h2 {
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+}
+
+/* Ícones do helper $this->icon() nos lugares onde o legado usava Unicons (.uil) */
+.search-box .indicators .icon,
+.search-info .item .icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+/* Botões "mais…"/"menos" das facetas e ordenação da lista completa (antes via classes no template) */
+.facet.narrow-toggle,
+#btn-group-sort .btn {
+  border: 1px solid var(--color-hex-primary-base, #0d6efd);
+  color: var(--color-hex-primary-base, #0d6efd);
+  background: transparent;
+}
+#btn-group-sort .btn.active {
+  background: var(--color-hex-primary-base, #0d6efd);
+  color: #fff;
+}
+
+/* Barra do Governo Federal: estilo inline do legado movido para cá (CSP sem unsafe-inline) */
+#barra-brasil {
+  background: #7f7f7f;
+  height: 20px;
+  padding: 0 0 0 10px;
+  display: block;
+}
+#barra-brasil ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#barra-brasil li {
+  display: inline;
+  float: left;
+  padding-right: 10px;
+  margin-right: 10px;
+  border-right: 1px solid #ededed;
+}
+#barra-brasil a {
+  font-family: sans-serif;
+  text-decoration: none;
+  color: #fff;
+}
+
+/* Logo do Lattes ao lado do nome das pessoas */
+.author-property-profile .logoLattes {
+  margin-left: 4px;
+  vertical-align: baseline;
+}

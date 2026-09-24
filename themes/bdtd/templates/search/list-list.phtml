@@ -1,36 +1,31 @@
-<?php if (!isset($this->indexStart)) $this->indexStart = 0; ?>
-<?php $i = $this->indexStart; ?>
 <?php
-/**
-  Customização solicitada por Blena – 06/11/2025
-  Remove da listagem pública registros 
- * Essa abordagem evita mostrar itens indevidos sem alterar o índice Solr.
- 
- * ID a ocultar são definidos em Search/Results.phtml
-  e aplicados aqui para impedir a criação do card.
- */
-
-$hiddenIds = $this->hiddenIds ?? [
-  'IEC-2_281ad121c7f952303548dc412774bb3c'
-];
-?>
-
-<?php foreach ($this->results->getResults() as $current) : ?>
-  <?php
-  if (in_array($current->getUniqueId(), $hiddenIds)) {
-    continue;
+  // BDTD: baseado em bootstrap5/templates/search/list-list.phtml (VuFind 11.1.0):
+  // card com a classe card-results e número em destaque. Registros ocultos agora
+  // saem por config (searches.ini [RawHiddenFilters]), não mais por código aqui.
+  if (!isset($this->indexStart)) {
+    $this->indexStart = 0;
   }
-
-  $recordNumber = $this->results->getStartRecord() + $i - $this->indexStart;
-
-  ?>
-  <div id="result<?= $i++ ?>" class="result card-results <?= $current->supportsAjaxStatus() ? ' ajaxItem' : '' ?>">
-    <?php if (isset($this->showCheckboxes) && $this->showCheckboxes) : ?>
-      <?= $this->record($current)->getCheckbox('', 'search-cart-form', $recordNumber) ?>
-    <?php endif; ?>
-    <div class="record-number">
-      <h2> <?= $recordNumber ?></h2>
-    </div>
-    <?= $this->record($current)->getSearchResult('list') ?>
-  </div>
-<?php endforeach; ?>
+  $i = $this->indexStart;
+  $listStart = $this->results->getStartRecord() + $i - $this->indexStart;
+  $showCheckboxes = $this->searchSettings($this->results->getParams())->checkboxesEnabled();
+?>
+<ol class="<?=$this->escapeHtmlAttr(trim('record-list ' . ($this->resultsClass ?? '')))?>" start="<?=$listStart?>"<?=isset($this->resultsAttrs) ? ' ' . $this->resultsAttrs : ''?>>
+  <?php foreach ($this->results->getResults() as $current): ?>
+    <?php $recordNumber = $this->results->getStartRecord() + $i - $this->indexStart; ?>
+    <?php // Data-record-number attribute is for analytics use.  Do not remove. ?>
+    <li<?php if (empty($this->excludeResultIds)): ?> id="result<?=$i?>"<?php endif; ?> class="result card-results<?=$current->supportsAjaxStatus() ? ' ajaxItem' : ''?>" data-record-number="<?=$this->escapeHtmlAttr($recordNumber)?>">
+      <?php if ($showCheckboxes): ?>
+        <?=$this->record($current)->getCheckbox('', 'search-cart-form', $recordNumber)?>
+      <?php else: ?>
+        <div class="record-number">
+          <span class="h2"><?=$recordNumber ?></span>
+        </div>
+      <?php endif; ?>
+      <?=$this->record($current)->getSearchResult('list', $this->results)?>
+    </li>
+    <?php
+      // First record is 0, so increment the counter after each record:
+      $i++;
+    ?>
+  <?php endforeach; ?>
+</ol>

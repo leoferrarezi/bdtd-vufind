@@ -1,74 +1,71 @@
 <?php
-$toggleUrl = $this->facet['isApplied']
-  ? $this->urlBase . $this->url->removeFacet($this->group, $this->facet['value'], $this->facet['operator'])
-  : $this->urlBase . $this->url->addFacet($this->group, $this->facet['value'], $this->facet['operator']);
-$toggleUrl = str_replace("--", ".", $toggleUrl);
-$hasSubLinks = $this->exclude && !$this->facet['isApplied'];
+  $toggleUrl = ($this->facet['isApplied'] || $this->facet['isExcluded'])
+    ? $this->urlBase . $this->url->removeFacet($this->group, $this->facet['value'], $this->facet['operator'])
+    : $this->urlBase . $this->url->addFacet($this->group, $this->facet['value'], $this->facet['operator']);
 
-$classList = ['facet', 'js-facet-item'];
-if (!empty($this->moreClass)) {
-  $classList[] = $this->moreClass;
-}
-if ($this->facet['isApplied']) {
-  $classList[] = 'active';
-}
-if ($this->facet['operator'] == 'OR') {
-  $classList[] = 'facetOR';
-}
-if ($this->facet['operator'] == 'AND') {
-  $classList[] = 'facetAND';
-}
+  $hasCheckbox = $this->facet['operator'] === 'OR';
 
-$displayText = '-';
-if (!empty($this->facet['displayText'])) {
-  $displayText = $this->escapeHtml($this->facet['displayText']);
-} elseif (!empty($this->facet['value'])) {
-  $displayText = $this->escapeHtml($this->facet['value']);
-}
+  $classList = ['facet', 'js-facet-item'];
+  if ($this->facet['isApplied']) {
+    $classList[] = 'active';
+  }
+  if ($this->facet['isExcluded']) {
+    $classList[] = 'excluded';
+  }
+  if ($this->facet['operator'] == 'OR') {
+    $classList[] = 'facetOR';
+  }
+  if ($this->facet['operator'] == 'AND') {
+    $classList[] = 'facetAND';
+  }
+  // BDTD: facetas hierárquicas do CNPq vêm como "A::B::C"; exibe só o último nível.
+  $facetText = (string)($this->facet['displayText'] ?? '');
+  if (str_contains($facetText, '::')) {
+    $parts = explode('::', $facetText);
+    $facetText = end($parts);
+  }
+  $displayText = '';
+  if ($this->facet['isExcluded']) {
+    $displayText = '<span class="visually-hidden">' . $this->transEsc('excluded') . '</span> ';
+  }
+  if ('' !== $facetText) {
+    $displayText .= $this->escapeHtml($facetText);
+  } elseif ('' !== (string)($this->facet['value'] ?? '')) {
+    $displayText .= $this->escapeHtml($this->facet['value']);
+  } else {
+    $displayText .= '-';
+  }
+  $displayText = '<span class="facet-value' . ($hasCheckbox ? ' icon-link__label' : '') . '">' . $displayText . '</span>';
 
-// facetas do CNPq vem 3 nomes separados por ::, nesse caso, pegamos somente o úlitmo 
-if (str_contains($displayText, '::')) {
-  $displayText = explode('::', $displayText);
-  $displayText = end($displayText);
-}
-
-
-$displayText = '<span class="facet-value">' . $displayText . '</span>';
-
-if ($this->facet['operator'] == 'OR') {
-  $displayText =
-    '<i class="fa ' . ($this->facet['isApplied'] ? 'fa-check-square-o' : 'fa-square-o') . '" aria-hidden="true"></i> '
-    . $displayText;
-}
+  if ($hasCheckbox) {
+    $displayText = $this->icon(
+        $this->facet['isApplied'] ? 'facet-checked' : 'facet-unchecked',
+        [
+          'class' => 'icon-link__icon',
+          'data-checked' => $this->facet['isApplied'] ? 'true' : 'false',
+        ]
+    ) . $displayText;
+  }
 ?>
-<?php if ($hasSubLinks) : ?>
-  <div class="<?= implode(' ', $classList) ?>">
-  <?php else : ?>
-    <a href="<?= $toggleUrl ?>" class="text-secondary <?= implode(' ', $classList) ?>" data-title="<?= $this->escapeHtmlAttr($this->facet['displayText']) ?>" data-count="<?= $this->facet['count'] ?>" <?php if ($this->facet['isApplied']) : ?> title="<?= $this->transEscAttr('applied_filter') ?>" <?php endif; ?> data-lightbox-ignore>
-    <?php endif; ?>
 
-    <?php if ($hasSubLinks) : ?>
-      <a class="text" href="<?= $toggleUrl ?>" data-lightbox-ignore data-title="<?= $this->escapeHtmlAttr($this->facet['displayText']) ?>" data-count="<?= $this->facet['count'] ?>" <?php if ($this->facet['isApplied']) : ?> title="<?= $this->transEscAttr('applied_filter') ?>" <?php endif; ?>>
-        <?= $displayText ?>
-      </a>
-    <?php else : ?>
-      <span class="text">
-        <?= $displayText ?>
-      </span>
-    <?php endif; ?>
-
-    <?php if (!$this->facet['isApplied']) : ?>
+<span class="<?=implode(' ', $classList) ?>">
+  <a class="main-link<?=$hasCheckbox ? ' icon-link' : ''?>" href="<?=$toggleUrl ?>" data-lightbox-ignore data-title="<?=$this->escapeHtmlAttr($this->facet['displayText']) ?>" data-count="<?=$this->facet['count'] ?>"<?php if ($this->facet['isApplied']): ?> title="<?=$this->transEscAttr('applied_filter') ?>"<?php endif;?>>
+    <span class="text">
+      <?=$displayText ?>
+    </span>
+    <?php if (!$this->facet['isApplied'] && !$this->facet['isExcluded'] && null !== $this->facet['count']): ?>
       <span class="badge">
-        <?= $this->localizedNumber($this->facet['count']) ?>
+        <?php $currentCount = $this->localizedNumber($this->facet['count']); ?>
+        <span class="visually-hidden"><?=$this->transEsc('result_count', ['%%count%%' => $currentCount]) ?></span>
+        <span aria-hidden="true"><?=$currentCount ?></span>
       </span>
     <?php endif; ?>
-
-    <?php if ($this->exclude && !$this->facet['isApplied']) : ?>
-      <?php $excludeURL = $this->urlBase . $this->url->addFacet($this->group, $this->facet['value'], 'NOT'); ?>
-      <a href="<?= $excludeURL ?>" data-lightbox-ignore class="exclude">
-        <i class="fa fa-times" aria-hidden="true"></i>
-        <span class="sr-only"><?= $this->transEsc('exclude_facet') ?></span>
-      </a>
-    <?php endif; ?>
-
-    <?= $hasSubLinks ? '</div>' : '</a>'; ?>
+  </a>
+  <?php if ($this->exclude && !$this->facet['isApplied'] && !$this->facet['isExcluded']): ?>
+    <?php $excludeURL = $this->urlBase . $this->url->addFacet($this->group, $this->facet['value'], 'NOT'); ?>
+    <a href="<?=$excludeURL ?>" data-lightbox-ignore class="exclude" title="<?=$this->transEscAttr('exclude_facet') ?>">
+      <?=$this->icon('facet-exclude') ?>
+      <span class="visually-hidden"><?=$this->transEsc('exclude_facet') ?></span>
+    </a>
+  <?php endif; ?>
+</span>

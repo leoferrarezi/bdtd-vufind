@@ -1,0 +1,25 @@
+<?php
+  // BDTD: contadores da faixa superior (home e busca avançada). Os números são
+  // preenchidos por indicators-home.js a partir da API de busca do próprio VuFind.
+  $results = $this->url('search-results');
+  $byFormat = fn ($format) => $results . '?' . http_build_query([
+    'lookfor' => '', 'type' => 'AllFields', 'filter' => ['format:"' . $format . '"'],
+  ]);
+  $items = [
+    ['bdtd-institutions', 'institution', 'Instituições', $this->url('datasources-home')],
+    ['bdtd-dissertations', 'masterThesis', 'Dissertações', $byFormat('masterThesis')],
+    ['bdtd-theses', 'doctorThesis', 'Teses', $byFormat('doctoralThesis')],
+    ['bdtd-documents', 'total', 'Documentos', $results],
+  ];
+?>
+<div class="indicators text-primary">
+  <?php foreach ($items as [$icon, $id, $label, $url]): ?>
+    <div class="item">
+      <?=$this->icon($icon)?>
+      <a href="<?=$this->escapeHtmlAttr($url)?>" class="data">
+        <span id="<?=$id?>" class="main-highlight">&nbsp;</span>
+        <span><?=$this->escapeHtml($label)?></span>
+      </a>
+    </div>
+  <?php endforeach; ?>
+</div>

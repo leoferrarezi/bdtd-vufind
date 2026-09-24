@@ -1,25 +1,12 @@
 const INDICATORS_FACETS =
   'search?type=AllFields&page=0&limit=0&sort=relevance&facet[]=author_facet&facet[]=dc.subject.por.fl_str_mv&facet[]=eu_rights_str_mv&facet[]=dc.publisher.program.fl_str_mv&facet[]=dc.subject.cnpq.fl_str_mv&facet[]=publishDate&facet[]=language&facet[]=format&facet[]=institution&facet[]=dc.contributor.advisor1.fl_str_mv';
 
-let API_BASE_URL;
-let REMOTE_API_URL = 'https://api-oasisbr.ibict.br/api/v1';
-
-if (
-  window.location.hostname === 'bdtd.ibict.br' ||
-  window.location.hostname === 'bdtdh.ibict.br'
-) {
-  API_BASE_URL = `https://${window.location.host}/${
-    window.location.pathname.split('/')[1]
-  }/api/v1`;
-  REMOTE_API_URL = `https://api-oasisbr.ibict.br/api/v1`;
-} else {
-  API_BASE_URL = `http://${window.location.host}/${
-    window.location.pathname.split('/')[1]
-  }/api/v1`;
-  REMOTE_API_URL = `http://${window.location.host}:3000/api/v1`;
-}
-
-console.log('API_BASE_URL', API_BASE_URL);
+// BDTD (VuFind 11): as URLs vêm do layout (window.BDTD), montadas a partir da
+// configuração do servidor, em vez de serem deduzidas do hostname.
+// - vufindApi: API de busca do próprio VuFind (/vufind/api/v1)
+// - oasisbrApi: oasisbr-api (local/config/vufind/Apis.ini); vazia = recursos desligados
+const API_BASE_URL = (window.BDTD && window.BDTD.vufindApi) || '/vufind/api/v1';
+const REMOTE_API_URL = (window.BDTD && window.BDTD.oasisbrApi) || '';
 
 let loader = '';
 
