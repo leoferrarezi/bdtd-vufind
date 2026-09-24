@@ -12,10 +12,12 @@
  */
 return [
     'extends' => 'bootstrap5',
+    // Sem 'priority': arquivos sem prioridade saem depois dos do tema pai (compiled.css),
+    // na ordem abaixo. Com prioridade, sairiam ANTES do compiled.css e seriam anulados.
     'css' => [
-        ['file' => 'style.css', 'priority' => 900],
-        ['file' => 'custom.css', 'priority' => 910],
-        ['file' => 'bdtd-bs5.css', 'priority' => 920],
+        ['file' => 'style.css'],
+        ['file' => 'custom.css'],
+        ['file' => 'bdtd-bs5.css'],
     ],
     'js' => [
         ['file' => 'languages.js', 'priority' => 900],
