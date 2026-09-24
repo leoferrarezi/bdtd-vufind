@@ -61,3 +61,13 @@
   margin-left: 4px;
   vertical-align: baseline;
 }
+
+/* Caixa de busca: no VuFind 11 o campo fica dentro de .searchForm-query (com o botão de limpar) */
+.search-form .searchForm-query {
+  flex: 1 1 auto;
+  position: relative;
+  min-width: 0;
+}
+.search-form .searchForm-query .search-input {
+  width: 100%;
+}

@@ -25,25 +25,27 @@ function fillTotal(total) {
   totalElement.textContent = formatNumber(total);
 }
 
+// BDTD (VuFind 11): tolerante a formatos ausentes (antes quebrava e deixava os contadores vazios)
+function getFormatCount(formats, value) {
+  const found = (formats || []).find((format) => format.value == value);
+  return found ? found.count : 0;
+}
+
 function getMasterThesisCount(formats) {
-  var masterThesis = formats.find((format) => {
-    return format.value == "masterThesis";
-  });
-  return masterThesis.count;
+  return getFormatCount(formats, "masterThesis");
 }
 
 function getDoctorThesisCount(formats) {
-  var doctoralThesis = formats.find((format) => {
-    return format.value == "doctoralThesis";
-  });
-  return doctoralThesis.count;
+  return getFormatCount(formats, "doctoralThesis");
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   const data = await getIndicatorsByType();
-  fillInstitution(data.facets.instname_str);
+  if (!data || !data.facets) {
+    return;
+  }
+  fillInstitution(data.facets.instname_str || []);
   const masterThesisCount = getMasterThesisCount(data.facets.format);
-  console.log("masterThesisCount", masterThesisCount);
   fillMasterThesis(masterThesisCount);
   const doctorThesisCount = getDoctorThesisCount(data.facets.format);
   fillDoctorThesis(doctorThesisCount);
