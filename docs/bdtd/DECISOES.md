@@ -42,3 +42,11 @@ Formato: data — decisão — motivo.
     pt-br/en/es. Reverter é uma linha no `header.phtml` se o IBICT preferir.
 16. **oasisbr-api fora do ar** (503 em 2026-09-24). Front-end e fallback de registros degradam
     sem erro; reativar = preencher `oasisbr_api` em `local/config/vufind/Apis.ini`.
+17. **Camada local só do servidor** (`/etc/bdtd/local`, herda `/opt/bdtd/local` via
+    `DirLocations.ini`): lugar dos segredos que o VuFind não lê de arquivo (ex.:
+    `ils_encryption_key`). Gerada pelo `provision.sh`, nunca versionada.
+18. **Solr local, não o remoto do roteiro.** O roteiro do IBICT aponta o VuFind direto para
+    `https://testesolr7.ibict.br/solr/`; aqui responde 404. Se o IBICT liberar o acesso (IP da VPS:
+    103.14.27.53), dá para apontar `[Index] url` para ele e dispensar a carga de dados — mas o
+    índice é Solr 7 e precisa ser testado com o VuFind 11.
+19. **Assistente /vufind/Install desligado** após a conferência (`autoConfigure = false`).

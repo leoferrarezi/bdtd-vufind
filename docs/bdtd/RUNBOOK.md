@@ -112,6 +112,27 @@ O importador descarta campos que o schema local não aceita e os destinos de `co
 que o próprio Solr regenera. Carga completa: `--by-facet instname_str` (precisa de
 particionamento extra por ano para instituições com mais de 1.000 registros).
 
+### 3.3.2 Conferência do roteiro de instalação do IBICT
+
+Roteiro da equipe (nota "Roteiro de Instalação do Vufind"): requisitos, banco `vufind`/usuário
+`vufind` no PostgreSQL, `pgsql.sql`, `composer install`, `install.php` (módulo, base `/vufind`),
+permissões de cache, conf do Apache, `local/config/vufind/config.ini`, `/vufind/Install` todo verde
+exceto ILS, `VUFIND_HOME` em `/etc/profile.d`, CSS com npm. Equivalência nesta instalação:
+
+| Roteiro | Aqui |
+|---|---|
+| `php install.php` (módulo "Ibict", base `/vufind`) | Feito pelo `provision.sh` + repo: módulo **Bdtd** (nome do legado), base `/vufind` no vhost |
+| senha do banco `vufind` | senha aleatória em `/etc/bdtd/secrets/db_password` |
+| copiar `config.ini` inteiro para `local/` | só as diferenças, com `[Parent_Config]` |
+| Solr `https://testesolr7.ibict.br/solr/` | Solr 9 local (o endereço do roteiro respondeu 404 daqui e da VPS) |
+| `/vufind/Install` verde exceto ILS | **Conferido em 2026-09-24**: tudo OK exceto ILS. "Security" exigiu `encrypt_ils_password` + chave, que ficam em `/etc/bdtd/local` (camada do servidor, fora do git) |
+| `chmod 777 local/cache/cli` | `/var/cache/bdtd/cli` com grupo `www-data` e ACL (sem 777) |
+| `VUFIND_HOME` em `/etc/profile.d` | `/etc/profile.d/vufind.sh` (também `VUFIND_LOCAL_DIR`, `VUFIND_CACHE_DIR`, `VUFIND_LOCAL_MODULES`) |
+| `npm install && npm run build` | não usado: o CSS do tema é o compilado do legado (`style.css`) + `custom.css`/`bdtd-bs5.css`. Se o SCSS do tema for editado, recompilar localmente e commitar |
+| Node.js 16+ no servidor | não instalado (desnecessário no servidor pelo motivo acima) |
+
+Depois da conferência o assistente foi desligado (`[System] autoConfigure = false`).
+
 ### 3.4 Deploy de rotina
 
 ```bash
