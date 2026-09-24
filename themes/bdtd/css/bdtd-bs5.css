@@ -149,3 +149,7 @@
 .adv-group-form .adv-group-match .form-select {
   width: auto;
 }
+.adv-search-form .adv-group {
+  width: 100%;
+  max-width: none;
+}
