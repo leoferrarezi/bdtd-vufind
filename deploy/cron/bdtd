@@ -2,7 +2,7 @@
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 VUFIND_HOME=@APP_DIR@
-VUFIND_LOCAL_DIR=@APP_DIR@/local
+VUFIND_LOCAL_DIR=@SERVER_LOCAL_DIR@
 VUFIND_CACHE_DIR=/var/cache/bdtd/cli
 
 # Expira sessões e buscas antigas (substitui o scripts/delete_files.sh do legado)

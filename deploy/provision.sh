@@ -20,6 +20,7 @@ BRANCH="${BRANCH:-vufind11}"
 CACHE_DIR="${CACHE_DIR:-/var/cache/bdtd}"         # VUFIND_CACHE_DIR (fora do repo)
 LOG_DIR="${LOG_DIR:-/var/log/bdtd}"
 SECRETS_DIR="${SECRETS_DIR:-/etc/bdtd/secrets}"
+SERVER_LOCAL_DIR="${SERVER_LOCAL_DIR:-/etc/bdtd/local}"  # camada local só do servidor (segredos); herda $APP_DIR/local
 DB_NAME="${DB_NAME:-vufind}"
 DB_USER="${DB_USER:-vufind}"
 PUBLIC_URL="${PUBLIC_URL:-http://103.14.27.53:18080}"
@@ -113,6 +114,41 @@ if ! PGPASSWORD="$DB_PASS" psql -h localhost -U "$DB_USER" -d "$DB_NAME" -tAc "S
   PGPASSWORD="$DB_PASS" psql -q -h localhost -U "$DB_USER" -d "$DB_NAME" -f "$APP_DIR/module/VuFind/sql/pgsql.sql"
 fi
 
+# ------------------------------------------------------------- 5b. Camada local do servidor
+# Configurações que NÃO podem ir para o git (repo público). O Apache aponta VUFIND_LOCAL_DIR
+# para $SERVER_LOCAL_DIR, que pelo DirLocations.ini herda tudo de $APP_DIR/local (versionado).
+log "5b. Camada local do servidor ($SERVER_LOCAL_DIR herda $APP_DIR/local)"
+install -d -o root -g www-data -m 750 "$SERVER_LOCAL_DIR" "$SERVER_LOCAL_DIR/config" "$SERVER_LOCAL_DIR/config/vufind"
+printf '%s\n' \
+  '; Gerado por deploy/provision.sh: a camada local do servidor herda a do repositório' \
+  '[Parent_Dir]' \
+  "path = $APP_DIR/local" \
+  'is_relative_path = false' > "$SERVER_LOCAL_DIR/DirLocations.ini"
+if [[ ! -s "$SERVER_LOCAL_DIR/config/vufind/config.ini" ]]; then
+  printf '%s\n' \
+    '; Gerado por deploy/provision.sh: SEGREDOS DO SERVIDOR (não versionar).' \
+    "; Herda $APP_DIR/local/config/vufind/config.ini, que herda o config.ini padrão do VuFind." \
+    '[Parent_Config]' \
+    'use_parent_dir = true' \
+    '' \
+    '[Authentication]' \
+    'hash_passwords       = true' \
+    'encrypt_ils_password = true' \
+    'ils_encryption_algo  = "aes"' \
+    "ils_encryption_key   = \"$(openssl rand -hex 32)\"" > "$SERVER_LOCAL_DIR/config/vufind/config.ini"
+fi
+chown root:www-data "$SERVER_LOCAL_DIR/DirLocations.ini" "$SERVER_LOCAL_DIR/config/vufind/config.ini"
+chmod 640 "$SERVER_LOCAL_DIR/DirLocations.ini" "$SERVER_LOCAL_DIR/config/vufind/config.ini"
+usermod -aG www-data "$APP_USER"   # comandos de console como $APP_USER também leem a camada do servidor
+
+# Variáveis para comandos de console do VuFind em shells interativos (roteiro de instalação)
+printf '%s\n' \
+  "export VUFIND_HOME=\"$APP_DIR\"" \
+  "export VUFIND_LOCAL_DIR=\"$SERVER_LOCAL_DIR\"" \
+  "export VUFIND_CACHE_DIR=\"$CACHE_DIR/cli\"" \
+  "export VUFIND_LOCAL_MODULES=\"$LOCAL_MODULES\"" > /etc/profile.d/vufind.sh
+chmod 644 /etc/profile.d/vufind.sh
+
 # ------------------------------------------------------------- 6. Solr (systemd)
 log "6. Solr como serviço (somente 127.0.0.1)"
 MEM_MB=$(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)
@@ -148,7 +184,7 @@ log "8. Apache (vhost BDTD)"
 a2enmod -q proxy_fcgi setenvif rewrite headers expires deflate remoteip >/dev/null
 a2enconf -q "php$PHP_VER-fpm" >/dev/null
 sed -e "s#@APP_DIR@#$APP_DIR#g" -e "s#@CACHE_DIR@#$CACHE_DIR#g" -e "s#@LOG_DIR@#$LOG_DIR#g" \
-    -e "s#@LOCAL_MODULES@#$LOCAL_MODULES#g" \
+    -e "s#@LOCAL_MODULES@#$LOCAL_MODULES#g" -e "s#@SERVER_LOCAL_DIR@#$SERVER_LOCAL_DIR#g" \
     "$APP_DIR/deploy/apache/bdtd.conf" > /etc/apache2/sites-available/bdtd.conf
 [[ -n "$LOCAL_MODULES" ]] || sed -i '/VUFIND_LOCAL_MODULES/d' /etc/apache2/sites-available/bdtd.conf
 a2dissite -q 000-default >/dev/null 2>&1 || true
@@ -159,6 +195,7 @@ systemctl reload apache2
 # ------------------------------------------------------------- 9. Rotinas
 log "9. Cron e logrotate"
 sed -e "s#@APP_DIR@#$APP_DIR#g" -e "s#@APP_USER@#$APP_USER#g" -e "s#@LOG_DIR@#$LOG_DIR#g" \
+    -e "s#@SERVER_LOCAL_DIR@#$SERVER_LOCAL_DIR#g" \
     "$APP_DIR/deploy/cron/bdtd" > /etc/cron.d/bdtd
 chmod 644 /etc/cron.d/bdtd
 sed -e "s#@LOG_DIR@#$LOG_DIR#g" "$APP_DIR/deploy/logrotate/bdtd" > /etc/logrotate.d/bdtd
