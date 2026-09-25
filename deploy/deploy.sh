@@ -22,7 +22,7 @@ as_app() { sudo -u "$APP_USER" -H bash -c "cd '$APP_DIR' && $*"; }
 
 log "Código → $REF"
 BEFORE=$(as_app "git rev-parse HEAD")
-as_app "git fetch --quiet --tags origin"
+as_app "git fetch --quiet --tags --force origin"  # --force: tags recriadas no GitHub (ex.: após reescrita de histórico) sobrescrevem as locais
 if [[ "$REF" == origin/* ]]; then
   as_app "git checkout --quiet '$BRANCH' && git reset --quiet --hard '$REF'"
 else
