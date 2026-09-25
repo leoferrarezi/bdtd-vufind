@@ -52,13 +52,11 @@ function exportsCSV(allInstitutions) {
   });
 }
 
-// Link para os resultados da instituição: usa o href da faceta (query string gerada
-// pelo próprio VuFind) só se for mesmo uma query string; senão monta o filtro.
+// Link para os resultados da instituição (filtro montado aqui; o href da faceta
+// herdaria os parâmetros da consulta à API, como limit=0).
 function institutionUrl(institution) {
-  if (typeof institution.href === "string" && institution.href.startsWith("?")) {
-    return SEARCH_RESULTS_URL + institution.href;
-  }
-  return searchResultsUrl({ filter: [`instname_str:"${institution.value}"`] });
+  const name = String(institution.value ?? "").replaceAll('"', '\\"');
+  return searchResultsUrl({ type: "AllFields", filter: [`instname_str:"${name}"`] });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

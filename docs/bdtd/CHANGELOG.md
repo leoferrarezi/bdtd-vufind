@@ -15,7 +15,7 @@
   - dARK ID com escape (era impresso cru, vindo dos metadados coletados); links de perfil
     Lattes e de acesso ao documento só com http/https; `rel="noopener"` nos links externos.
   - Bibliotecas JS e fontes servidas pelo tema, com versão fixa (vega 5.33.1, vega-lite 5.23.0,
-    vega-embed 6.29.0, vega-interpreter 1.2.1, gridjs 6.2.0, tippy 6.3.7, popper 2.11.8; Open
+    vega-embed 6.29.0, vega-interpreter 1.2.1, gridjs 6.2.0, tippy 6.3.7 com o Popper do bootstrap5; Open
     Sans/Roboto/Lato em `css/fonts`); nada vem de CDN nem do Google Fonts. Lista em
     `themes/bdtd/js/lib/VERSOES.md`.
   - axios 0.21.1 (com falhas conhecidas) substituído por `fetch`; parâmetros de URL codificados;

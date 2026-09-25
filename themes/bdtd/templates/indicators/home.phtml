@@ -7,7 +7,7 @@
 <?php $this->assetManager()->appendScriptLink("lib/vega-lite.min.js"); ?>
 <?php $this->assetManager()->appendScriptLink("lib/vega-embed.min.js"); ?>
 <?php $this->assetManager()->appendScriptLink("lib/vega-interpreter.min.js"); ?>
-<?php $this->assetManager()->appendScriptLink("lib/popper.min.js"); ?>
+<?php /* tippy usa o Popper que o bootstrap5 já carrega (vendor/popper.min.js) */ ?>
 <?php $this->assetManager()->appendScriptLink("lib/tippy-bundle.umd.min.js"); ?>
 <?php $this->assetManager()->appendScriptLink("lib/vega-options.js"); ?>
 <?php $this->assetManager()->appendScriptLink("lib/wordcloud2.js"); ?>

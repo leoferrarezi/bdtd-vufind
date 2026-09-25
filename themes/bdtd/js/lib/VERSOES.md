@@ -14,8 +14,7 @@ atualizar esta tabela (versão e sha256) e testar as páginas que usam.
 | js/lib/vega-lite.min.js | vega-lite | 5.23.0 | BSD-3-Clause | indicadores | https://cdn.jsdelivr.net/npm/vega-lite@5.23.0/build/vega-lite.min.js |
 | js/lib/vega-embed.min.js | vega-embed | 6.29.0 | BSD-3-Clause | indicadores | https://cdn.jsdelivr.net/npm/vega-embed@6.29.0/build/vega-embed.min.js |
 | js/lib/vega-interpreter.min.js | vega-interpreter | 1.2.1 | BSD-3-Clause | indicadores (Vega sem eval) | https://cdn.jsdelivr.net/npm/vega-interpreter@1.2.1/build/vega-interpreter.min.js |
-| js/lib/popper.min.js | @popperjs/core | 2.11.8 | MIT | indicadores (tippy) | https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js |
-| js/lib/tippy-bundle.umd.min.js | tippy.js | 6.3.7 | MIT | indicadores (nuvem de palavras) | https://cdn.jsdelivr.net/npm/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js |
+| js/lib/tippy-bundle.umd.min.js | tippy.js | 6.3.7 | MIT | indicadores (nuvem de palavras; usa o Popper do bootstrap5) | https://cdn.jsdelivr.net/npm/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js |
 | js/lib/gridjs.umd.js | gridjs | 6.2.0 | MIT | instituições participantes | https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/gridjs.umd.js |
 | css/gridjs-mermaid.min.css | gridjs | 6.2.0 | MIT | instituições participantes | https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/theme/mermaid.min.css |
 | js/lib/wordcloud2.js | wordcloud2 | (do legado) | MIT | indicadores | https://github.com/timdream/wordcloud2.js |
@@ -31,7 +30,6 @@ open-close-tab.js, languages/*.js).
 58c27358e26f2d319cf62f45bc17a4c8362f08645001df2ec8d341eee4097c7f  js/lib/vega-lite.min.js
 12d02acfbe3ec59ef9a37dd4822a2e04e2961b5bbb671bbe661d2221715b99da  js/lib/vega-embed.min.js
 ee191cf04168e0c043214cea7c4e5ef80e908daa0e757c19c8061df5f898cf89  js/lib/vega-interpreter.min.js
-c212f4b505a86352aed62b24a8f16f999f821ecbe6456c7f3c8a04bc87968782  js/lib/popper.min.js
 3f0fe70eb26ccf28f6887a192e29d38dd7ef7c2f079a73304ad42ddc7bed37de  js/lib/tippy-bundle.umd.min.js
 f7402f347715568c73f061781edd8e7dceeecdd7e2503c28a1012b7ccbc12509  js/lib/gridjs.umd.js
 ab9585e3983a57267a8f22f708fe40ad70f8c1bd5688ebfba31d11a0c7cca331  css/gridjs-mermaid.min.css
