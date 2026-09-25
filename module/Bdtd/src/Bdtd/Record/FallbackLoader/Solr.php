@@ -13,6 +13,7 @@
 
 namespace Bdtd\Record\FallbackLoader;
 
+use Laminas\Cache\Storage\StorageInterface;
 use Psr\Log\LoggerAwareInterface;
 use VuFind\Db\Service\ResourceServiceInterface;
 use VuFind\Http\GuzzleService;
@@ -37,6 +38,13 @@ use function is_array;
  * Falhas da API são registradas no log e tratadas como "não encontrado" —
  * a página nunca quebra por causa da API.
  *
+ * Proteções (a rota /Record/{id} é pública e cada ID inexistente chega aqui):
+ * - só IDs com formato de ID da BDTD (ex.: UNITAU_dd794c…) são enviados à API;
+ * - após uma falha de conexão/timeout, a API fica suspensa por alguns segundos
+ *   (marca no cache de objetos do VuFind, compartilhada entre os processos PHP),
+ *   para que uma API lenta não prenda um processo PHP por requisição;
+ * - a URL da API precisa ser http(s).
+ *
  * @category BDTD
  * @package  Record
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
@@ -54,6 +62,20 @@ class Solr extends \VuFind\Record\FallbackLoader\Solr implements LoggerAwareInte
     protected array $backupIds = [];
 
     /**
+     * Formato aceito de ID de registro (prefixo da fonte + hash; sem barras ou espaços).
+     *
+     * @var string
+     */
+    public const ID_PATTERN = '/^[A-Za-z0-9][\w.:-]{0,199}$/';
+
+    /**
+     * Chave, no cache de objetos, do instante até o qual a API fica suspensa.
+     *
+     * @var string
+     */
+    public const SUSPENDED_KEY = 'bdtd_oasisbr_api_suspended_until';
+
+    /**
      * Constructor
      *
      * @param ResourceServiceInterface $resourceService Resource database service
@@ -64,6 +86,8 @@ class Solr extends \VuFind\Record\FallbackLoader\Solr implements LoggerAwareInte
      * @param RecordDriverManager      $driverManager   Gerenciador de drivers
      * @param string                   $apiUrl          URL base da oasisbr-api (vazio = desligado)
      * @param float                    $timeout         Timeout das chamadas à API (s)
+     * @param ?StorageInterface        $cache           Cache de objetos (suspensão após falha)
+     * @param int                      $suspendSeconds  Tempo de suspensão após falha (s)
      */
     public function __construct(
         ResourceServiceInterface $resourceService,
@@ -73,9 +97,14 @@ class Solr extends \VuFind\Record\FallbackLoader\Solr implements LoggerAwareInte
         protected GuzzleService $httpService,
         protected RecordDriverManager $driverManager,
         protected string $apiUrl = '',
-        protected float $timeout = 5.0
+        protected float $timeout = 5.0,
+        protected ?StorageInterface $cache = null,
+        protected int $suspendSeconds = 60
     ) {
         parent::__construct($resourceService, $recordIdUpdater, $searchService, $legacyIdField);
+        if ($this->apiUrl !== '' && !preg_match('~^https?://~i', $this->apiUrl)) {
+            $this->apiUrl = ''; // só http(s); qualquer outra coisa desliga o fallback
+        }
         if ($this->apiUrl !== '' && !str_ends_with($this->apiUrl, '/')) {
             $this->apiUrl .= '/';
         }
@@ -91,7 +120,12 @@ class Solr extends \VuFind\Record\FallbackLoader\Solr implements LoggerAwareInte
     protected function fetchSingleRecord($id)
     {
         $standard = parent::fetchSingleRecord($id);
-        if (count($standard) > 0 || $this->apiUrl === '') {
+        if (
+            count($standard) > 0
+            || $this->apiUrl === ''
+            || !preg_match(self::ID_PATTERN, (string)$id)
+            || $this->isApiSuspended()
+        ) {
             return $standard;
         }
 
@@ -104,6 +138,9 @@ class Solr extends \VuFind\Record\FallbackLoader\Solr implements LoggerAwareInte
             }
         }
 
+        if ($this->isApiSuspended()) { // a primeira chamada falhou: não tenta a segunda
+            return [];
+        }
         $backup = $this->apiGet('records/' . rawurlencode($id))['record'] ?? null;
         if (is_array($backup) && $backup) {
             $backup['id'] ??= $id;
@@ -154,8 +191,40 @@ class Solr extends \VuFind\Record\FallbackLoader\Solr implements LoggerAwareInte
             $data = json_decode((string)$response->getBody(), true);
             return is_array($data) ? $data : [];
         } catch (\Throwable $e) {
-            $this->logWarning('oasisbr-api indisponível (' . $path . '): ' . $e->getMessage());
+            $this->suspendApi();
+            $this->logWarning(
+                'oasisbr-api indisponível (' . $path . '), suspensa por ' . $this->suspendSeconds
+                . 's: ' . $e->getMessage()
+            );
             return [];
+        }
+    }
+
+    /**
+     * A API está suspensa por causa de uma falha recente?
+     *
+     * @return bool
+     */
+    protected function isApiSuspended(): bool
+    {
+        try {
+            return (int)$this->cache?->getItem(self::SUSPENDED_KEY) > time();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Suspende as chamadas à API por $suspendSeconds.
+     *
+     * @return void
+     */
+    protected function suspendApi(): void
+    {
+        try {
+            $this->cache?->setItem(self::SUSPENDED_KEY, time() + $this->suspendSeconds);
+        } catch (\Throwable $e) {
+            // sem cache, cada requisição tenta de novo (comportamento anterior)
         }
     }
 }

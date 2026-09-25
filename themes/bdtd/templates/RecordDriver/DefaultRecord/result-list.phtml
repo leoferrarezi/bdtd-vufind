@@ -77,7 +77,7 @@
           <?php elseif (!empty($summDate)): ?>
             <div class="publish-date"><?=$this->transEsc('Published') . ' ' . $this->escapeHtml($summDate[0])?></div>
           <?php endif; ?>
-          <?php foreach ($this->driver->getContainingCollections() as $collId => $collText): ?>
+          <?php foreach ($this->driver->getContainingCollections() ?: [] as $collId => $collText): /* BDTD: retorna false sem coleções */ ?>
             <div class="publish-date">
               <b><?=$this->transEsc('in_collection_label')?></b>
               <a class="collectionLinkText" href="<?=$this->record($this->driver)->getLink('collection', $collId)?>">
@@ -159,7 +159,7 @@
           <?php /* BDTD: "Acessar documento", numerado quando há mais de um link */ ?>
           <div class="link">
             <?php foreach (array_values($urls) as $n => $current): ?>
-              <a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" target="new">
+              <a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" target="new" rel="noopener">
                 <?=($current['url'] == $current['desc']) ? $this->transEsc('Access document') : $this->escapeHtml($current['desc'])?><?=count($urls) > 1 ? ' (' . ($n + 1) . ')' : ''?>
               </a><br>
             <?php endforeach; ?>

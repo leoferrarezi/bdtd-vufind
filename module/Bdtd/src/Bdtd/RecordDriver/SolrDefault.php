@@ -460,13 +460,41 @@ class SolrDefault extends \VuFind\RecordDriver\SolrDefault
     }
 
     /**
-     * URLs do registro.
+     * URLs do registro (só http/https).
      *
      * @return array
      */
     public function getURLsArray(): array
     {
-        return $this->getFieldsValues(['url'], false);
+        return array_values(
+            array_filter($this->getFieldsValues(['url'], false), fn ($url) => $this->isHttpUrl($url))
+        );
+    }
+
+    /**
+     * Links de acesso ("Acessar documento"). As URLs vêm dos metadados coletados das
+     * instituições: descarta tudo que não for http/https (javascript:, data: etc.),
+     * porque os templates as usam direto no href.
+     *
+     * @return array
+     */
+    public function getURLs()
+    {
+        return array_values(
+            array_filter(parent::getURLs(), fn ($link) => $this->isHttpUrl($link['url'] ?? ''))
+        );
+    }
+
+    /**
+     * A URL é http(s)?
+     *
+     * @param mixed $url URL
+     *
+     * @return bool
+     */
+    protected function isHttpUrl($url): bool
+    {
+        return is_string($url) && preg_match('~^https?://~i', trim($url)) === 1;
     }
 
     /**

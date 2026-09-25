@@ -1,7 +1,8 @@
 <?php
   // BDTD: baseado em bootstrap5/templates/search/results.phtml (VuFind 11.1.0).
   // Diferenças: total e controles numa faixa acima das colunas (result-header),
-  // botão "Exportar" opcional ([BdtdTheme] bulk_export) e sem results-tools.
+  // sem results-tools. O botão "Exportar" do legado (exportação em massa) foi retirado
+  // até a exportação ser reescrita; ver docs/bdtd/DECISOES.md.
   // Registros ocultos: config searches.ini [RawHiddenFilters] (no legado era código aqui).
 
   // Set up page title:
@@ -55,7 +56,6 @@
   $this->assetManager()->appendScriptString('var multiFacetsSelection = "' . $this->multiFacetsSelection . '";');
 
   $recordTotal = $this->results->getResultTotal();
-  $bulkExport = (bool)($this->config()->get('config')->BdtdTheme->bulk_export ?? false);
 ?>
 
 <h1 class="visually-hidden"><?=$this->escapeHtml($headTitle)?></h1>
@@ -82,25 +82,6 @@
       <div class="search-controls">
         <?=$this->slot('search-controls')?>
       </div>
-      <?php if ($bulkExport): /* BDTD: exportação em massa (reescrita pendente) */ ?>
-        <div class="btn-group export dropdown">
-          <button class="btn btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <?=$this->transEsc('Export')?>
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item" href="<?=$this->escapeHtmlAttr($this->url('bulkexport-home') . '?total=' . $recordTotal . '&type=ris')?>" data-lightbox>
-                <?=$this->icon('format-file')?> <?=$this->transEsc('Export RIS')?>
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="<?=$this->escapeHtmlAttr($this->url('bulkexport-home') . '?total=' . $recordTotal . '&type=csv')?>" data-lightbox>
-                <?=$this->icon('bdtd-download')?> <?=$this->transEsc('Export CSV')?>
-              </a>
-            </li>
-          </ul>
-        </div>
-      <?php endif; ?>
     <?php endif; ?>
   </div>
 </div>

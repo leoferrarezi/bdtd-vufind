@@ -51,6 +51,8 @@ class SolrFactory extends \VuFind\Record\FallbackLoader\SolrFactory
                 $container->get(\VuFind\RecordDriver\PluginManager::class),
                 (string)($apis['Oasisbr']['oasisbr_api'] ?? ''),
                 (float)($apis['Oasisbr']['timeout'] ?? 5),
+                $container->get(\VuFind\Cache\Manager::class)->getCache('object'),
+                (int)($apis['Oasisbr']['suspend_after_failure'] ?? 60),
             ]
         );
         $loader->setLogger($container->get(\VuFind\Log\Logger::class));
