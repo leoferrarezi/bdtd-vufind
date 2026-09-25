@@ -3,7 +3,7 @@
   // Só vira link para o resolvedor n2t.net quando tem a forma de um ARK; sempre com escape.
   $darkId = trim((string)$this->driver->getDarkID());
 ?>
-<?php if (preg_match('~^ark:/?[0-9a-z]+/[\w./~=+-]+$~i', $darkId)): ?>
+<?php if (preg_match('#^ark:/?[0-9a-z]+/[\w./~=+-]+$#i', $darkId)): ?>
   <a href="<?=$this->escapeHtmlAttr('https://n2t.net/' . $darkId)?>" target="_blank" rel="noopener"><?=$this->escapeHtml($darkId)?></a>
 <?php else: ?>
   <?=$this->escapeHtml($darkId)?>
