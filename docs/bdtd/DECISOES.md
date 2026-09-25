@@ -50,3 +50,12 @@ Formato: data — decisão — motivo.
     103.14.27.53), dá para apontar `[Index] url` para ele e dispensar a carga de dados — mas o
     índice é Solr 7 e precisa ser testado com o VuFind 11.
 19. **Assistente /vufind/Install desligado** após a conferência (`autoConfigure = false`).
+20. **Nada de CDN no tema.** Scripts de terceiros e fontes ficam no repositório, com versão fixa e
+    sha256 em `themes/bdtd/js/lib/VERSOES.md`. Código de terceiros só muda por commit, o site não
+    depende do CDN, o IP do visitante não vai para o Google/jsDelivr/unpkg (LGPD) e a CSP pode
+    ser `'self'`. Atualizar = trocar o arquivo, a tabela e testar a página.
+21. **Dados externos nunca viram HTML.** Metadados coletados (dARK, Lattes, URLs) e respostas de
+    APIs (oasisbr-api, API do VuFind) são escapados nos templates e montados com
+    `textContent`/elementos no JS; links só com http/https.
+22. **Botão de exportação em massa retirado** do tema (e a opção `bulk_export`) até existir a
+    exportação reescrita; a do legado tinha execução de comandos e proxy aberto.

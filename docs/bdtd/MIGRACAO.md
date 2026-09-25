@@ -69,5 +69,6 @@ Correções de bugs do legado encontradas na migração:
 - `.card-results .link a { width: 10px }` passou a cortar "Acessar documento" no BS5;
 - `evolution-indicators.js` / `load-network.js` quebravam sem a oasisbr-api (agora mostram aviso).
 
-Pendências do tema: DataTables BS5 (páginas que usam), endurecer CSP (hoje `report_only`),
-revisar mobile de todas as páginas institucionais, auto-hospedar libs de CDN (gridjs, vega, tippy).
+Pendências do tema: endurecer CSP (hoje `report_only`),
+revisar mobile de todas as páginas institucionais. (Libs de CDN auto-hospedadas e DataTables
+removido por falta de uso em 2026-09-25.)
