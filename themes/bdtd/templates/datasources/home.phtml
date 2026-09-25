@@ -2,8 +2,8 @@
 <?php $this->layout()->searchbox = false; ?>
 <?php $this->layout()->layoutFull = true; ?>
 <?php $this->assetManager()->appendStyleLink('loader.css'); ?>
-<?php $this->assetManager()->appendStyleLink('https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css'); ?>
-<?php $this->assetManager()->appendScriptLink("https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"); ?>
+<?php $this->assetManager()->appendStyleLink('gridjs-mermaid.min.css'); ?>
+<?php $this->assetManager()->appendScriptLink("lib/gridjs.umd.js"); ?>
 <?php $this->assetManager()->appendScriptLink("networks.js"); ?>
 <?php $this->breadcrumbs()->add($this->translate('Data Sources'), active: true); ?>
 

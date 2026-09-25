@@ -295,13 +295,13 @@ async function createWordCloud(data, lookfor, type) {
     fontFamily: 'Lato, sans-serif',
     color: '#000',
     click: function (item) {
-      let search = '/vufind/Search/Results?';
+      // BDTD (VuFind 11): parâmetros codificados e caminho vindo da configuração (window.BDTD)
+      const params = { filter: [`dc.subject.por.fl_str_mv:"${item[0]}"`] };
       if (lookfor && type) {
-        search = search + `lookfor=${lookfor}&type=${type}&`;
+        params.lookfor = lookfor;
+        params.type = type;
       }
-      search =
-        search + `filter%5B%5D=dc.subject.por.fl_str_mv%3A%22${item[0]}%22`;
-      window.location = search;
+      window.location = searchResultsUrl(params);
     },
     hover: function (item, dimension) {
       tippyElement.setContent(item[0] + ': ' + formatNumber(item[2]));

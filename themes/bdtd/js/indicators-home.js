@@ -1,7 +1,11 @@
 async function getIndicatorsByType() {
-  const data = await getIndicatorsBy(
-    "search?type=AllFields&facet[]=format&facet[]=instname_str&sort=relevance&page=1&limit=0"
-  );
+  const data = await getIndicatorsBy({
+    type: "AllFields",
+    facet: ["format", "instname_str"],
+    sort: "relevance",
+    page: 1,
+    limit: 0,
+  });
   return data;
 }
 

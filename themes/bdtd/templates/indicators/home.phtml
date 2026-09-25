@@ -2,9 +2,13 @@
 <?php $this->assetManager()->appendStyleLink('loader.css'); ?>
 <?php $this->layout()->searchbox = false; ?>
 <?php $this->layout()->nocontainerclass = true; ?>
-<?php $this->assetManager()->appendScriptLink("https://cdn.jsdelivr.net/npm/vega@5.20.2"); ?>
-<?php $this->assetManager()->appendScriptLink("https://cdn.jsdelivr.net/npm/vega-lite@5.1.0"); ?>
-<?php $this->assetManager()->appendScriptLink("https://cdn.jsdelivr.net/npm/vega-embed@6.17.0"); ?>
+<?php // BDTD: bibliotecas servidas pelo tema (versões em js/lib/VERSOES.md), não por CDN ?>
+<?php $this->assetManager()->appendScriptLink("lib/vega.min.js"); ?>
+<?php $this->assetManager()->appendScriptLink("lib/vega-lite.min.js"); ?>
+<?php $this->assetManager()->appendScriptLink("lib/vega-embed.min.js"); ?>
+<?php $this->assetManager()->appendScriptLink("lib/vega-interpreter.min.js"); ?>
+<?php $this->assetManager()->appendScriptLink("lib/popper.min.js"); ?>
+<?php $this->assetManager()->appendScriptLink("lib/tippy-bundle.umd.min.js"); ?>
 <?php $this->assetManager()->appendScriptLink("lib/vega-options.js"); ?>
 <?php $this->assetManager()->appendScriptLink("lib/wordcloud2.js"); ?>
 <?php $this->assetManager()->appendScriptLink("indicators-chart.js"); ?>
@@ -278,7 +282,3 @@
 
 
   </div>
-
-
-  <?php $this->assetManager()->appendScriptLink("https://unpkg.com/@popperjs/core@2"); ?>
-  <?php $this->assetManager()->appendScriptLink("https://unpkg.com/tippy.js@6"); ?>

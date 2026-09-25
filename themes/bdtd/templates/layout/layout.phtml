@@ -134,8 +134,9 @@
       // porque base.js lê window.BDTD ao carregar. A API do VuFind é relativa ao próprio site.
       $this->assetManager()->prependScriptString('window.BDTD = ' . json_encode([
           'vufindApi' => $root . '/api/v1',
+          'searchResults' => $this->url('search-results'),
           'oasisbrApi' => rtrim($oasisbrApi, '/'),
-      ], JSON_UNESCAPED_SLASHES) . ';');
+      ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) . ';'); // HEX_TAG: "</script>" num valor não fecha o bloco
 
       if ($domain = $this->cookieManager()->getDomain()) {
         $appendScripts[] = 'VuFind.cookie.setDomain(' . json_encode($domain) . ');';

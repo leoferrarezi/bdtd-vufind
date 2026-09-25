@@ -2,3 +2,8 @@
 # BDTD: scripts executados no Linux precisam de LF mesmo com core.autocrlf=true no Windows
 *.sh text eol=lf
 deploy/** text eol=lf
+
+# Bibliotecas de terceiros do tema: bytes idênticos aos publicados (sha256 em js/lib/VERSOES.md)
+themes/bdtd/js/lib/*.min.js -text
+themes/bdtd/js/lib/gridjs.umd.js -text
+themes/bdtd/css/gridjs-mermaid.min.css -text

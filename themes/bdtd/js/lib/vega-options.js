@@ -80,5 +80,8 @@ const vegaOptions = {
     compiled: false,
     editor: false
   },
-  fontSize: 14
+  fontSize: 14,
+  // BDTD (VuFind 11): expressões do Vega avaliadas pelo interpretador (vega-interpreter),
+  // sem eval/new Function; assim a CSP não precisa de 'unsafe-eval'.
+  ...(window.vega && vega.expressionInterpreter ? { ast: true, expr: vega.expressionInterpreter } : {})
 }

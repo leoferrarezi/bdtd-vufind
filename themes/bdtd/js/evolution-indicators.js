@@ -6,14 +6,13 @@ async function getIndicatorsFromRemoteApiBy(filter) {
   }
   try {
     showLoader();
-    const response = await axios.get(`${REMOTE_API_URL}${filter}`);
-    hideLoader();
-    const indicators = response.data;
-    return indicators;
+    return await getJson(`${REMOTE_API_URL}${filter}`);
   } catch (errors) {
-    hideLoader();
     showMessageError('#temporal-dashboard');
     console.error(errors);
+    return null;
+  } finally {
+    hideLoader();
   }
 }
 
@@ -72,26 +71,28 @@ document.addEventListener('DOMContentLoaded', async () => {
           .replaceAll(',', '');
   }
 
+  // BDTD (VuFind 11): caixas criadas com elementos/textContent, não innerHTML,
+  // porque os nomes vêm da oasisbr-api (API externa).
+  function createCheckbox(dataAttribute, key) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'checkbox';
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = true;
+    input.value = key;
+    input.setAttribute(dataAttribute, '');
+    label.append(input, ` ${key} (${sourceTypeNamesAndAbbreviationMap.get(key)})`);
+    wrapper.appendChild(label);
+    return wrapper;
+  }
+
   function createCheckboxsFilters() {
     const sourcesBoxFilters = document.querySelector('[data-filters-sources]');
     const docsBoxFilters = document.querySelector('[data-filters-docs]');
     for (const key of sourceTypeNamesAndAbbreviationMap.keys()) {
-      const sourcesField = `
-    <div class="checkbox">
-    <label>
-      <input checked data-filter-sources type="checkbox" value="${key}">
-      ${key} (${sourceTypeNamesAndAbbreviationMap.get(key)})
-    </label>
-  </div>`;
-      const docsField = `
-  <div class="checkbox">
-  <label>
-    <input checked data-filter-docs type="checkbox" value="${key}">
-    ${key} (${sourceTypeNamesAndAbbreviationMap.get(key)})
-  </label>
-</div>`;
-      sourcesBoxFilters.innerHTML = sourcesBoxFilters.innerHTML + sourcesField;
-      docsBoxFilters.innerHTML = docsBoxFilters.innerHTML + docsField;
+      sourcesBoxFilters.appendChild(createCheckbox('data-filter-sources', key));
+      docsBoxFilters.appendChild(createCheckbox('data-filter-docs', key));
     }
     listenerAllCheckboxsFilters();
   }
@@ -372,8 +373,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function addErrorMsg(divMsg) {
-    divMsg.innerHTML = `<div class="alert alert-danger">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    divMsg.innerHTML = `<div class="alert alert-danger alert-dismissible">
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       Período selecionado inválido, selecione um período de 4 e 12 meses.
     </div>`;
   }

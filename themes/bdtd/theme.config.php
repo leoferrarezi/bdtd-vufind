@@ -6,7 +6,9 @@
  * Portado do tema legado (bootstrap3). O CSS próprio do site (style.css,
  * compilado de scss/style.scss, e custom.css) é carregado DEPOIS do
  * compiled.css do bootstrap5; bdtd-bs5.css traz os ajustes da migração.
- * DataTables e scripts de gráficos são carregados só nas páginas que usam.
+ * Scripts de gráficos e tabelas são carregados só nas páginas que usam.
+ * Bibliotecas de terceiros ficam em js/lib (versões fixas, ver js/lib/VERSOES.md)
+ * e fontes em css/fonts: nada é carregado de CDN.
  * Recursos externos (Google Analytics, UserWay, barra do governo, Google
  * Tradutor) são ligados/desligados em config.ini [BdtdTheme].
  */
@@ -15,6 +17,7 @@ return [
     // Sem 'priority': arquivos sem prioridade saem depois dos do tema pai (compiled.css),
     // na ordem abaixo. Com prioridade, sairiam ANTES do compiled.css e seriam anulados.
     'css' => [
+        ['file' => 'bdtd-fonts.css'],
         ['file' => 'style.css'],
         ['file' => 'custom.css'],
         ['file' => 'bdtd-bs5.css'],
@@ -22,7 +25,6 @@ return [
     'js' => [
         ['file' => 'languages.js', 'priority' => 900],
         ['file' => 'format.js', 'priority' => 910],
-        ['file' => 'lib/axios.min.js', 'priority' => 920],
         ['file' => 'base.js', 'priority' => 930],
     ],
     'favicon' => [
