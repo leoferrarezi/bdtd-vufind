@@ -44,7 +44,7 @@
           </h3>
           <div class="collapse" id="3">
             <p>
-              Não é possível realizar o autodepósito da tese ou dissertação, pois as informações contidas na BDTD são coletadas apenas das <a href="https://bdtd.ibict.br/vufind/datasources/home" target="_blank" rel="noopener noreferrer">instituições participantes</a>. Caso a sua instituição não esteja entre as instituições participantes, sugerimos que entre em contato com a biblioteca da instituição de defesa indicando a integração da mesma junto à BDTD, e para isso a instituição deve entrar em contato com nossa equipe demonstrando esse interesse, por meio do e-mail: equipebdtd@ibict.br.
+              Não é possível realizar o autodepósito da tese ou dissertação, pois as informações contidas na BDTD são coletadas apenas das <a href="<?=$this->url('datasources-home')?>">instituições participantes</a>. Caso a sua instituição não esteja entre as instituições participantes, sugerimos que entre em contato com a biblioteca da instituição de defesa indicando a integração da mesma junto à BDTD, e para isso a instituição deve entrar em contato com nossa equipe demonstrando esse interesse, por meio do e-mail: equipebdtd@ibict.br.
               .</p>
           </div>
         </div>
@@ -66,10 +66,10 @@
             <p>A BDTD possui uma lista de dicas para auxiliar na busca avançada, para conhecer mais sobre é só acessar: 
              <ul>
               <li>
-              <a href="https://bdtd.ibict.br/vufind/Help/Home?topic=search&_=1764177306" target="_blank" rel="noopener noreferrer">Dicas para buscas</a> 
+              <a href="<?=$this->url('help', ['topic' => 'search'])?>" target="_blank" rel="noopener">Dicas para buscas</a> 
               </li>   
               <li>
-              <a href="https://bdtd.ibict.br/vufind/Help/Home?topic=advsearch&_=1764177373" target="_blank" rel="noopener noreferrer">Dicas avançadas de pesquisa</a></p>
+              <a href="<?=$this->url('help', ['topic' => 'advsearch'])?>" target="_blank" rel="noopener">Dicas avançadas de pesquisa</a></p>
               </li>    
              </ul>
                
@@ -136,7 +136,7 @@
 
             <p>Contate-nos pelo email: <b>equipebdtd@ibict.br</b></p>
 
-            <p> <a href="/vufind/MODELO-DE-OFICIO.docx" target="_blank" rel="noopener noreferrer">
+            <p> <a href="<?=$this->imageLink('docs/MODELO-DE-OFICIO.docx')?>" target="_blank" rel="noopener">
                 Link para o modelo de ofício</a>.
             </p>
           </div>

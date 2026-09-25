@@ -15,7 +15,8 @@
 
     </p>
 
-    <a target="_blank" href="../Padrao_de_Metadados_da_BDTD_MTD3-BR_v_2017.pdf">
+    <?php /* BDTD: documento servido pelo tema (images/docs); no legado ficava em public/ */ ?>
+    <a target="_blank" rel="noopener" href="<?=$this->imageLink('docs/Padrao_de_Metadados_da_BDTD_MTD3-BR_v_2017.pdf')?>">
         <?=$this->icon('bdtd-download', 'fa-2x')?>
         Padrão Brasileiro de Metadados para Descrição de Teses e Dissertações (MTD3-BR) v.3
     </a>
